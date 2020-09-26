@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Music</string>
+    <string name="seach_item_title">Seach</string>
+    <string name="name_current_song_label">Ten bai hat</string>
+    <string name="singer_name_current_song_label">Ten ca si</string>
+</resources>

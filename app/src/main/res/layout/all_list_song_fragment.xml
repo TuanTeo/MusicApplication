@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/list_song_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list_song_recycleview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <RelativeLayout
+        android:id="@+id/small_playing_area"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_gravity="bottom"
+        android:background="#F1F1F1"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+        <ImageView
+            android:id="@+id/small_song_label"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_margin="10dp"
+            android:background="#00FFFFFF"
+            android:src="@drawable/ic_launcher_foreground" />
+
+        <RelativeLayout
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/small_song_label"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/small_name_current_song"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/name_current_song_label"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/small_singer_name_current_song"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/small_name_current_song"
+                android:text="@string/singer_name_current_song_label" />
+        </RelativeLayout>
+
+        <ImageButton
+            android:id="@+id/small_play_imagebutton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:adjustViewBounds="true"
+            android:background="#00FFFFFF"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_media_play_dark" />
+    </RelativeLayout>
+</FrameLayout>
