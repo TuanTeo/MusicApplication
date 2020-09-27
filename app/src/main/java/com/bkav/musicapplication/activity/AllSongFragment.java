@@ -41,7 +41,8 @@ public class AllSongFragment extends Fragment {
         mRecyclerView = view.findViewById(R.id.list_song_recycleview);
         mSongAdapter = new SongAdapter(mListSong, (MainActivity) getActivity());
         mRecyclerView.setAdapter(mSongAdapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
+        mRecyclerView.setLayoutManager
+                (new LinearLayoutManager(getActivity().getApplicationContext()));
     }
 
     /**

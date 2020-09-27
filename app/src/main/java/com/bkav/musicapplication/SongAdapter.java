@@ -18,9 +18,9 @@ import java.util.ArrayList;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
     //Create List of Song
-    ArrayList<Song> mListSong;
-    LayoutInflater mInflater;
-    MainActivity mainActivity;
+    private ArrayList<Song> mListSong;
+    private LayoutInflater mInflater;
+    private MainActivity mainActivity;
 
     public SongAdapter(ArrayList<Song> mListSong, MainActivity context) {
         mainActivity = context;

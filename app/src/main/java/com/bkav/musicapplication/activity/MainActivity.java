@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         //Create Music app Toolbar
         setSupportActionBar((androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar_main));
 
-//        //Hien thi FragmentAllSong first
+       //Hien thi FragmentAllSong first
         if (savedInstanceState == null) {
             AllSongFragment allSongFragment = new AllSongFragment();
             getSupportFragmentManager().beginTransaction()
