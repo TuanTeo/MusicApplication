@@ -11,7 +11,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Adapter;
+import android.widget.RelativeLayout;
 
 import com.bkav.musicapplication.R;
 import com.bkav.musicapplication.Song;
@@ -24,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Song> mListSong;
     private SongAdapter mSongAdapter;
     private RecyclerView mRecyclerView;
+    private RelativeLayout mSmallPlayingArea;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,11 +36,9 @@ public class MainActivity extends AppCompatActivity {
         //Create Music app Toolbar
         setSupportActionBar((androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar_main));
 
-       //Hien thi FragmentAllSong first
+        //Hien thi FragmentAllSong first
         if (savedInstanceState == null) {
-            AllSongFragment allSongFragment = new AllSongFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, allSongFragment).commit();
+            showAllSongFragment();
         }
 
 
@@ -72,9 +73,27 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void switchToDetail() {
+    /**
+     * Show All Song Fragment
+     */
+    public void showAllSongFragment() {
+        AllSongFragment allSongFragment = new AllSongFragment();
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.container, allSongFragment).commit();
+    }
+
+    /**
+     * Show Media Playback Fragment
+     */
+    public void showMediaPlaybackFragment() {
         MediaPlaybackFragment mediaPlaybackFragment = new MediaPlaybackFragment();
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.container, mediaPlaybackFragment).commit();
+    }
+
+    public void switchToDetail() {
+        mSmallPlayingArea = findViewById(R.id.small_playing_area);
+        mSmallPlayingArea.setVisibility(View.VISIBLE);
+//        showAllSongFragment();
     }
 }

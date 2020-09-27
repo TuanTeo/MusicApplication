@@ -18,7 +18,7 @@
         android:layout_gravity="bottom"
         android:background="#F1F1F1"
         android:orientation="horizontal"
-        android:visibility="visible">
+        android:visibility="invisible">
 
         <ImageView
             android:id="@+id/small_song_label"
