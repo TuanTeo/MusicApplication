@@ -15,11 +15,11 @@
 
     <TextView
         android:id="@+id/song_name_item_textview"
-        android:layout_width="wrap_content"
+        android:lines="1"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/serial_item_textview"
-        android:text="@string/name_current_song_label"
-        android:textSize="20sp" />
+        android:text="@string/name_current_song_label" />
 
     <TextView
         android:id="@+id/total_time_song_item_textview"
@@ -27,8 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/song_name_item_textview"
         android:layout_toRightOf="@+id/serial_item_textview"
-        android:text="Total song time"
-        android:textSize="10sp" />
+        android:text="Total song time" />
 
     <ImageButton
         android:id="@+id/song_detail_item"
@@ -39,7 +38,7 @@
         android:layout_marginRight="20dp"
         android:layout_centerVertical="true"
         android:adjustViewBounds="true"
-
+        android:background="#00FFFFFF"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_menu_moreoverflow_card_dark_active" />
 </RelativeLayout>

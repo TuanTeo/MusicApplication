@@ -1,12 +1,9 @@
 package com.bkav.musicapplication.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
@@ -26,20 +23,22 @@ import java.util.ArrayList;
  */
 public class AllSongFragment extends Fragment {
 
-    private RelativeLayout mSmallPlayingArea;   //Relative to display Playing area
-    private ArrayList<Song> mListSong;  //song List object
+    private RelativeLayout mSmallPlayRelativeLayout;   //Relative to display Playing area
+    private ArrayList<Song> mListSongAdapter;  //song List object
     private SongAdapter mSongAdapter;   //song Adapter object
     private RecyclerView mRecyclerView; //Recycleview object
+    private MainActivity mainActivity;
 
     /**
      * Create all Items RecycleView
+     *
      * @param view
      */
     public void createRecycleView(View view) {
-        mListSong = new ArrayList<>();
-        initListSong(mListSong);    //init listSong
+        mListSongAdapter = new ArrayList<>();
+        initListSong(mListSongAdapter);    //init listSong
         mRecyclerView = view.findViewById(R.id.list_song_recycleview);
-        mSongAdapter = new SongAdapter(mListSong, (MainActivity) getActivity());
+        mSongAdapter = new SongAdapter(mListSongAdapter, (MainActivity) getActivity());
         mRecyclerView.setAdapter(mSongAdapter);
         mRecyclerView.setLayoutManager
                 (new LinearLayoutManager(getActivity().getApplicationContext()));
@@ -47,6 +46,7 @@ public class AllSongFragment extends Fragment {
 
     /**
      * Create init List Song
+     *
      * @param listSong
      */
     public void initListSong(ArrayList<Song> listSong) {
@@ -55,25 +55,21 @@ public class AllSongFragment extends Fragment {
         listSong.add(new Song(R.raw.bewithyou,
                 R.drawable.ic_reason_album, "Be With You", "Han Quoc"));
         listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Bang Khuang", "JusterT"));
+                R.drawable.ic_reason_album, "La ai mang nang di xa La ai mang nang di xaLa ai mang nang di xaLa ai mang nang di xa", "JusterT"));
         listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Bang Khuang", "JusterT"));
+                R.drawable.ic_reason_album, "Noi ta dung chan", "JusterT"));
         listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Bang Khuang", "JusterT"));
+                R.drawable.ic_reason_album, "Anh da sai", "JusterT"));
         listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Bang Khuang", "JusterT"));
+                R.drawable.ic_reason_album, "Yeu", "JusterT"));
         listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Bang Khuang", "JusterT"));
+                R.drawable.ic_reason_album, "Noi nay co anh", "JusterT"));
         listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Bang Khuang", "JusterT"));
+                R.drawable.ic_reason_album, "Yeu mot nguoi co le", "JusterT"));
         listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Bang Khuang", "JusterT"));
+                R.drawable.ic_reason_album, "Anh nang cua anh", "JusterT"));
         listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Bang Khuang", "JusterT"));
-    }
-
-    public void setOnClickListenerRecycleView(View view){
-
+                R.drawable.ic_reason_album, "Big City boy", "JusterT"));
     }
 
     @Nullable
@@ -84,8 +80,25 @@ public class AllSongFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.all_list_song_fragment, container, false);
         createRecycleView(view);
-
-        //TODO: sau khi set OnClick cho recycleView => set VISIBLE cho mSmallPlayingArea
+        mSmallPlayRelativeLayout = view.findViewById(R.id.small_playing_area);
+        setOnClick();
         return view;
+    }
+
+    /**
+     * Set onlick for all element of all song fragment
+     */
+    public void setOnClick(){
+        mSmallPlayRelativeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MediaPlaybackFragment mediaPlaybackFragment = new MediaPlaybackFragment();
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction().addToBackStack(null)
+                        .replace(R.id.main_view, mediaPlaybackFragment)
+                        .commit();
+
+            }
+        });
     }
 }

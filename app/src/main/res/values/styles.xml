@@ -18,4 +18,12 @@
     <style name="AppTheme.PopupOverlay"
         parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="SongTheme.NameSongOverLay" parent="Base.TextAppearance.AppCompat">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="SongTheme.NameSongClickOverLay" parent="Base.TextAppearance.AppCompat.Body2">
+        <item name="android:textSize">22sp</item>
+    </style>
+
 </resources>

@@ -2,31 +2,18 @@ package com.bkav.musicapplication.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.RelativeLayout;
 
 import com.bkav.musicapplication.R;
-import com.bkav.musicapplication.Song;
-import com.bkav.musicapplication.SongAdapter;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ArrayList<Song> mListSong;
-    private SongAdapter mSongAdapter;
-    private RecyclerView mRecyclerView;
-    private RelativeLayout mSmallPlayingArea;
+    private RelativeLayout mSmallPlayingAreaRelativeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,14 +21,32 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //Create Music app Toolbar
-        setSupportActionBar((androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar_main));
+        setSupportActionBar(
+                (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar_main));
 
         //Hien thi FragmentAllSong first
         if (savedInstanceState == null) {
             showAllSongFragment();
         }
+    }
 
+    /**
+     *
+     * Show All Song Fragment Wh
+     */
+    public void showAllSongFragment() {
+        AllSongFragment allSongFragment = new AllSongFragment();
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.container, allSongFragment)
+                .commit();
+    }
 
+    /**
+     * Show Small Playing Area
+     */
+    public void showSmallPlayingArea(){
+        mSmallPlayingAreaRelativeLayout = findViewById(R.id.small_playing_area);
+        mSmallPlayingAreaRelativeLayout.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -71,29 +76,5 @@ public class MainActivity extends AppCompatActivity {
              */
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * Show All Song Fragment
-     */
-    public void showAllSongFragment() {
-        AllSongFragment allSongFragment = new AllSongFragment();
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.container, allSongFragment).commit();
-    }
-
-    /**
-     * Show Media Playback Fragment
-     */
-    public void showMediaPlaybackFragment() {
-        MediaPlaybackFragment mediaPlaybackFragment = new MediaPlaybackFragment();
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.container, mediaPlaybackFragment).commit();
-    }
-
-    public void switchToDetail() {
-        mSmallPlayingArea = findViewById(R.id.small_playing_area);
-        mSmallPlayingArea.setVisibility(View.VISIBLE);
-//        showAllSongFragment();
     }
 }
