@@ -1,5 +1,6 @@
 package com.bkav.musicapplication;
 
+import android.content.res.Configuration;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,7 +40,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
 //        mDefaultTypeFace = holder.mSongNameItem. ;
-        holder.mSerialSongNumberTextView.setText(position + "");
+        holder.mSerialSongNumberTextView.setText((position + 1) + "");
         holder.mSongNameItemTextView.setText(mListSongAdapter.get(position).getSongName());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -85,10 +86,16 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         @Override
         public void onClick(View v) {
-            //Show small playing area
-            mainActivity.showSmallPlayingArea();
-            mLastItemPositionInt = getAdapterPosition();
-            notifyDataSetChanged();
+
+            if (v.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE){
+                //Show small playing area
+                mainActivity.showSmallPlayingArea();
+                mLastItemPositionInt = getAdapterPosition();
+                notifyDataSetChanged();
+            } else {
+                mLastItemPositionInt = getAdapterPosition();
+                notifyDataSetChanged();
+            }
         }
     }
 }

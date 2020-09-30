@@ -3,6 +3,7 @@ package com.bkav.musicapplication.activity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,27 +25,24 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(
                 (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar_main));
 
-        //Hien thi FragmentAllSong first
-        if (savedInstanceState == null) {
-            showAllSongFragment();
-        }
+        createMainView();
     }
 
+
     /**
-     *
-     * Show All Song Fragment Wh
+     * Show All Song Fragment
      */
-    public void showAllSongFragment() {
+    public void showAllSongFragment(int intRes) {
         AllSongFragment allSongFragment = new AllSongFragment();
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.container, allSongFragment)
+                .replace(intRes, allSongFragment)
                 .commit();
     }
 
     /**
      * Show Small Playing Area
      */
-    public void showSmallPlayingArea(){
+    public void showSmallPlayingArea() {
         mSmallPlayingAreaRelativeLayout = findViewById(R.id.small_playing_area);
         mSmallPlayingAreaRelativeLayout.setVisibility(View.VISIBLE);
     }
@@ -57,24 +55,46 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     /**
      * Set event for item clicked
-     *
      * @param item
      * @return
      */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int itemID = item.getItemId();
-        if (itemID == R.id.seach_action) {
-            /**
-             * TODO xu ly tac vu tim kiem bai hat trong list bai hat
-             */
-        }
+//        int itemID = item.getItemId();
+//        if (itemID == R.id.seach_action_imagebutton) {
+//            /**
+//             * TODO xu ly tac vu tim kiem bai hat trong list bai hat
+//             */
+//        }
         return super.onOptionsItemSelected(item);
     }
+
+    /**
+     * Create view on the First time
+     */
+    public void createMainView(){
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+            showAllSongFragment(R.id.container);
+        } else {
+            showAllSongFragment(R.id.container_left);
+            showMediaFragment(R.id.container_right);
+        }
+    }
+
+    /**
+     * Show Detail Media Fragment
+     */
+    private void showMediaFragment(int intRes) {
+        MediaPlaybackFragment mediaPlaybackFragment = new MediaPlaybackFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(intRes, mediaPlaybackFragment)
+                .commit();
+    }
+
 }

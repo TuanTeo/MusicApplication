@@ -25,7 +25,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/name_current_song_label"
-            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textAppearance="@style/SongTheme.NameSongOverLay"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="5dp"
             android:layout_toRightOf="@+id/media_album_small_image" />
@@ -34,6 +36,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/singer_name_current_song_label"
+            android:textSize="15sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:layout_marginLeft="10dp"
             android:layout_toRightOf="@+id/media_album_small_image"
             android:layout_below="@+id/media_name_song_current"/>
@@ -125,8 +130,8 @@
 
         <ImageButton
             android:id="@+id/media_like_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
@@ -136,8 +141,8 @@
 
         <ImageButton
             android:id="@+id/media_prev_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_centerVertical="true"
             android:layout_marginRight="20dp"
             android:layout_toLeftOf="@+id/media_play_button"
@@ -157,8 +162,8 @@
 
         <ImageButton
             android:id="@+id/media_next_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_centerVertical="true"
             android:layout_marginLeft="20dp"
             android:layout_toRightOf="@+id/media_play_button"
@@ -168,8 +173,8 @@
 
         <ImageButton
             android:id="@+id/media_dislike_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="10dp"
