@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
 import com.bkav.musicapplication.R;
@@ -24,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
         //Create Music app Toolbar
         setSupportActionBar(
                 (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar_main));
-
         createMainView();
     }
 
@@ -43,8 +43,10 @@ public class MainActivity extends AppCompatActivity {
      * Show Small Playing Area
      */
     public void showSmallPlayingArea() {
-        mSmallPlayingAreaRelativeLayout = findViewById(R.id.small_playing_area);
-        mSmallPlayingAreaRelativeLayout.setVisibility(View.VISIBLE);
+            mSmallPlayingAreaRelativeLayout = findViewById(R.id.small_playing_area);
+        if (mSmallPlayingAreaRelativeLayout.getVisibility() == View.GONE) {
+            mSmallPlayingAreaRelativeLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Set event for item clicked
+     *
      * @param item
      * @return
      */
@@ -78,8 +81,8 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Create view on the First time
      */
-    public void createMainView(){
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+    public void createMainView() {
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             showAllSongFragment(R.id.container);
         } else {
             showAllSongFragment(R.id.container_left);
@@ -90,10 +93,10 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Show Detail Media Fragment
      */
-    private void showMediaFragment(int intRes) {
+    public void showMediaFragment(int intRes) {
         MediaPlaybackFragment mediaPlaybackFragment = new MediaPlaybackFragment();
         getSupportFragmentManager().beginTransaction()
-                .replace(intRes, mediaPlaybackFragment)
+                .add(intRes, mediaPlaybackFragment)
                 .commit();
     }
 

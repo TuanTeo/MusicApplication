@@ -4,10 +4,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>z
-
-        <!-- Hide ActionBar -->
-        <item name="android:windowActionBar">false</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -22,11 +19,11 @@
         parent="ThemeOverlay.AppCompat.Dark" />
 
     <style name="SongTheme.NameSongOverLay" parent="Base.TextAppearance.AppCompat">
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">18sp</item>
     </style>
 
     <style name="SongTheme.NameSongClickOverLay" parent="Base.TextAppearance.AppCompat.Body2">
-        <item name="android:textSize">22sp</item>
+        <item name="android:textSize">18sp</item>
     </style>
 
 </resources>

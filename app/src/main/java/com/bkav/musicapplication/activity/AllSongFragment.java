@@ -1,5 +1,6 @@
 package com.bkav.musicapplication.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +30,11 @@ public class AllSongFragment extends Fragment {
     private RecyclerView mRecyclerView; //Recycleview object
     private MainActivity mainActivity;
 
+//    //Constructor
+//    public AllSongFragment(MainActivity mainActivity){
+//        this.mainActivity = mainActivity;
+//    }
+
     /**
      * Create all Items RecycleView
      *
@@ -51,13 +57,13 @@ public class AllSongFragment extends Fragment {
      */
     public void initListSong(ArrayList<Song> listSong) {
         listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Bang Khuang", "JusterT"));
+                R.drawable.ic_reason_album, "Anh Đếch Cần Gì Nhiều Ngoài Em", "JusterT"));
         listSong.add(new Song(R.raw.bewithyou,
-                R.drawable.ic_reason_album, "Be With You", "Han Quoc"));
+                R.drawable.ic_reason_album, "Bài Này Chill Phết", "Han Quoc"));
         listSong.add(new Song(R.raw.bangkhuang,
                 R.drawable.ic_reason_album, "La ai mang nang di xa La ai mang nang di xaLa ai mang nang di xaLa ai mang nang di xa", "JusterT"));
         listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Noi ta dung chan", "JusterT"));
+                R.drawable.ic_reason_album, "Darkside", "JusterT"));
         listSong.add(new Song(R.raw.bangkhuang,
                 R.drawable.ic_reason_album, "Anh da sai", "JusterT"));
         listSong.add(new Song(R.raw.bangkhuang,
@@ -92,13 +98,10 @@ public class AllSongFragment extends Fragment {
         mSmallPlayRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MediaPlaybackFragment mediaPlaybackFragment = new MediaPlaybackFragment();
-                getActivity().getSupportFragmentManager()
-                        .beginTransaction().addToBackStack(null)
-                        .replace(R.id.main_view, mediaPlaybackFragment)
-                        .commit();
-
+                Intent intent = new Intent(getActivity().getApplicationContext(), MediaPlaybackActivity.class);
+                startActivity(intent);
             }
         });
     }
+
 }

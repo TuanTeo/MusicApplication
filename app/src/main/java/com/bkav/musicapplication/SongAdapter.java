@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,19 +40,29 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
-//        mDefaultTypeFace = holder.mSongNameItem. ;
-        holder.mSerialSongNumberTextView.setText((position + 1) + "");
+        //Set Name song
         holder.mSongNameItemTextView.setText(mListSongAdapter.get(position).getSongName());
 
+        //Set font
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (mLastItemPositionInt == position) {
                 holder.mSongNameItemTextView.setTextAppearance(R.style.SongTheme_NameSongClickOverLay);
-
                 //TODO ve tim hieu them
             } else {
                 holder.mSongNameItemTextView.setTextAppearance(R.style.SongTheme_NameSongOverLay);
             }
         }
+
+        //Set Serial
+        if (mLastItemPositionInt == position) {
+            holder.mSerialSongNumberTextView.setVisibility(View.INVISIBLE);
+            holder.mPlayingSongImageLinearLayout.setVisibility(View.VISIBLE);
+        } else {
+            holder.mSerialSongNumberTextView.setText((position + 1) + "");
+            holder.mSerialSongNumberTextView.setVisibility(View.VISIBLE);
+            holder.mPlayingSongImageLinearLayout.setVisibility(View.GONE);
+        }
+
     }
 
     @Override
@@ -67,6 +78,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         private TextView mSongNameItemTextView;
         private TextView mTotalTimeSongItemTextView;
         private ImageButton mSongDetailItemImageButton;
+        private LinearLayout mPlayingSongImageLinearLayout;
 
         /**
          * Constructor of Song View Holder
@@ -81,6 +93,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             mSongNameItemTextView = itemView.findViewById(R.id.song_name_item_textview);
             mTotalTimeSongItemTextView = itemView.findViewById(R.id.total_time_song_item_textview);
             mSongDetailItemImageButton = itemView.findViewById(R.id.song_detail_item);
+            mPlayingSongImageLinearLayout = itemView.findViewById(R.id.playing_icon_layout);
             itemView.setOnClickListener(this);
         }
 
