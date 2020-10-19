@@ -2,12 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="7.93dp">
+    android:layout_margin="8dp">
 
     <RelativeLayout
         android:id="@+id/serial_item_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="78.8dp"
+        android:layout_height="58.9dp">
 
         <TextView
             android:id="@+id/serial_item_textview"
@@ -15,34 +15,41 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="36dp"
-            android:layout_marginRight="34dp"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
-            android:text="1" />
+            android:paddingTop="0.2dp"
+            android:text="10" />
 
         <LinearLayout
             android:id="@+id/playing_icon_layout"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:visibility="gone"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="25dp"
+            android:paddingLeft="1dp"
+            android:paddingTop="4dp"
+            android:visibility="visible">
 
             <ImageView
                 android:id="@+id/playing_1_icon_image"
-                android:src="@drawable/indicator_playing_peak_meter_2"
-                android:layout_width="10dp"
-                android:layout_height="20dp"/>
+                android:layout_width="9dp"
+                android:layout_height="20dp"
+                android:layout_margin="0dp"
+                android:src="@drawable/indicator_playing_peak_meter_2" />
+
             <ImageView
                 android:id="@+id/playing_2_icon_image"
-                android:src="@drawable/indicator_playing_peak_meter_4"
-                android:layout_width="10dp"
-                android:layout_height="20dp"/>
+                android:layout_width="9dp"
+                android:layout_height="20dp"
+                android:layout_margin="0dp"
+                android:src="@drawable/indicator_playing_peak_meter_4" />
+
             <ImageView
                 android:id="@+id/playing_3_icon_image"
-                android:src="@drawable/indicator_playing_peak_meter_9"
-                android:layout_width="10dp"
-                android:layout_height="20dp"/>
+                android:layout_width="9dp"
+                android:layout_height="20dp"
+                android:layout_margin="0dp"
+                android:src="@drawable/indicator_playing_peak_meter_9" />
         </LinearLayout>
 
     </RelativeLayout>
@@ -50,23 +57,24 @@
 
     <TextView
         android:id="@+id/song_name_item_textview"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:layout_marginTop="7dp"
         android:layout_width="280dp"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/serial_item_layout"
+        android:layout_marginTop="7dp"
         android:layout_toLeftOf="@+id/song_detail_item"
+        android:layout_toRightOf="@+id/serial_item_layout"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingTop="0.8dp"
         android:text="@string/name_current_song_label" />
 
     <TextView
         android:id="@+id/total_time_song_item_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
         android:layout_below="@+id/song_name_item_textview"
+        android:layout_marginTop="2dp"
         android:layout_toRightOf="@+id/serial_item_layout"
-        android:text="3:37" />
+        android:text="@string/time_song_textview" />
 
     <ImageButton
         android:id="@+id/song_detail_item"
@@ -74,11 +82,11 @@
         android:layout_height="40dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:adjustViewBounds="true"
-        android:background="#00FFFFFF"
         android:layout_marginTop="10dp"
         android:layout_marginRight="1dp"
         android:layout_marginBottom="-1dp"
+        android:adjustViewBounds="true"
+        android:background="#00FFFFFF"
 
         android:scaleType="fitCenter"
         android:src="@drawable/ic_menu_moreoverflow_card_dark_active" />

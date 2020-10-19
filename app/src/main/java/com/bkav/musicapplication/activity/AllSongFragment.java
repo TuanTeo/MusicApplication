@@ -5,7 +5,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,10 +17,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bkav.musicapplication.R;
-import com.bkav.musicapplication.Song;
-import com.bkav.musicapplication.SongAdapter;
+import com.bkav.musicapplication.Song.Song;
+import com.bkav.musicapplication.Song.SongAdapter;
+import com.bkav.musicapplication.contentprovider.SongProvider;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+
 
 /**
  * Display Songs List
@@ -25,15 +31,29 @@ import java.util.ArrayList;
 public class AllSongFragment extends Fragment {
 
     private RelativeLayout mSmallPlayRelativeLayout;   //Relative to display Playing area
-    private ArrayList<Song> mListSongAdapter;  //song List object
+    private ImageView mSongImageView;
+    private TextView mCurrentSongNameTextView;
+    private TextView mCurrentArtistNameTextView;
+    private ImageButton mPlayMediaImageButton;
+    private ArrayList<Song> mListSongAdapter = new ArrayList<>();  //song List object
     private SongAdapter mSongAdapter;   //song Adapter object
     private RecyclerView mRecyclerView; //Recycleview object
-    private MainActivity mainActivity;
 
-//    //Constructor
-//    public AllSongFragment(MainActivity mainActivity){
-//        this.mainActivity = mainActivity;
-//    }
+
+    private static AllSongFragment instance;
+    private AllSongFragment(){}
+
+    public static AllSongFragment getInstance(){
+        if(instance == null){
+            synchronized(AllSongFragment.class){
+                if(instance == null){
+                    instance = new AllSongFragment();
+                }
+            }
+        }
+        return instance;
+    }
+
 
     /**
      * Create all Items RecycleView
@@ -41,41 +61,16 @@ public class AllSongFragment extends Fragment {
      * @param view
      */
     public void createRecycleView(View view) {
-        mListSongAdapter = new ArrayList<>();
-        initListSong(mListSongAdapter);    //init listSong
-        mRecyclerView = view.findViewById(R.id.list_song_recycleview);
-        mSongAdapter = new SongAdapter(mListSongAdapter, (MainActivity) getActivity());
-        mRecyclerView.setAdapter(mSongAdapter);
-        mRecyclerView.setLayoutManager
-                (new LinearLayoutManager(getActivity().getApplicationContext()));
-    }
+        ArrayList<Song> listAllSong = SongProvider.getInstance(getActivity().getApplicationContext()).getmListSong();
+        if(listAllSong.size() != 0){
+            mListSongAdapter.addAll(listAllSong);
+        }
 
-    /**
-     * Create init List Song
-     *
-     * @param listSong
-     */
-    public void initListSong(ArrayList<Song> listSong) {
-        listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Anh Đếch Cần Gì Nhiều Ngoài Em", "JusterT"));
-        listSong.add(new Song(R.raw.bewithyou,
-                R.drawable.ic_reason_album, "Bài Này Chill Phết", "Han Quoc"));
-        listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "La ai mang nang di xa La ai mang nang di xaLa ai mang nang di xaLa ai mang nang di xa", "JusterT"));
-        listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Darkside", "JusterT"));
-        listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Anh da sai", "JusterT"));
-        listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Yeu", "JusterT"));
-        listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Noi nay co anh", "JusterT"));
-        listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Yeu mot nguoi co le", "JusterT"));
-        listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Anh nang cua anh", "JusterT"));
-        listSong.add(new Song(R.raw.bangkhuang,
-                R.drawable.ic_reason_album, "Big City boy", "JusterT"));
+        mSongAdapter = new SongAdapter(mListSongAdapter, (MainActivity) getActivity());
+        mRecyclerView = view.findViewById(R.id.list_song_recycleview);
+        mRecyclerView.setAdapter(mSongAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
+
     }
 
     @Nullable
@@ -86,15 +81,23 @@ public class AllSongFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.all_list_song_fragment, container, false);
         createRecycleView(view);
-        mSmallPlayRelativeLayout = view.findViewById(R.id.small_playing_area);
+        initView(view);
         setOnClick();
         return view;
+    }
+
+    private void initView(View view){
+        mSmallPlayRelativeLayout = view.findViewById(R.id.small_playing_area);
+        mSongImageView = view.findViewById(R.id.small_song_imageview);
+        mCurrentSongNameTextView = view.findViewById(R.id.small_name_current_song);
+        mCurrentArtistNameTextView = view.findViewById(R.id.small_singer_name_current_song);
+        mPlayMediaImageButton = view.findViewById(R.id.small_play_imagebutton);
     }
 
     /**
      * Set onlick for all element of all song fragment
      */
-    public void setOnClick(){
+    public void setOnClick() {
         mSmallPlayRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,6 +105,13 @@ public class AllSongFragment extends Fragment {
                 startActivity(intent);
             }
         });
+    }
+
+    public void upDateSmallPlayingRelativeLayout(int position){
+        mCurrentSongNameTextView.setText(mListSongAdapter.get(position).getmTitle());
+        mCurrentArtistNameTextView.setText(mListSongAdapter.get(position).getmArtistName());
+        mPlayMediaImageButton.setImageResource(R.drawable.ic_media_pause_light);
+
     }
 
 }

@@ -2,5 +2,7 @@
     <string name="app_name">Music</string>
     <string name="seach_item_title">Seach</string>
     <string name="name_current_song_label">Darkside</string>
-    <string name="singer_name_current_song_label">Adanca Waiker</string>
+    <string name="singer_name_current_song_label">Alan Walker</string>
+    <string name="time_song_textview">3:37</string>
+    <string name="read_storage_permission_dialog_title_educational_UI">Permission</string>
 </resources>

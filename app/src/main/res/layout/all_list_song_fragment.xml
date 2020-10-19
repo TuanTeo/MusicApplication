@@ -22,27 +22,28 @@
         <RelativeLayout
             android:id="@+id/small_playing_area"
             android:layout_width="match_parent"
-            android:layout_height="74dp"
+            android:layout_height="88dp"
             android:layout_alignParentBottom="true"
             android:layout_gravity="bottom"
             android:background="#F1F1F1"
             android:visibility="visible">
 
             <ImageView
-                android:id="@+id/small_song_label"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_alignParentTop="true"
+                android:id="@+id/small_song_imageview"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginTop="14dp"
                 android:layout_alignParentLeft="true"
                 android:layout_marginRight="10dp"
                 android:layout_marginLeft="10dp"
-                android:background="#00FFFFFF"
                 android:src="@drawable/ic_launcher_foreground" />
 
             <RelativeLayout
                 android:layout_width="200dp"
                 android:layout_height="match_parent"
-                android:layout_toRightOf="@+id/small_song_label"
+                android:layout_toRightOf="@+id/small_song_imageview"
+                android:paddingBottom="5dp"
+                android:gravity="center_vertical"
                 android:orientation="vertical">
 
                 <TextView
@@ -60,7 +61,7 @@
                     android:id="@+id/small_singer_name_current_song"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:layout_below="@+id/small_name_current_song"
@@ -73,8 +74,8 @@
                 android:layout_height="60dp"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="15dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="18dp"
                 android:adjustViewBounds="true"
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"

@@ -18,4 +18,6 @@ public class MediaPlaybackActivity extends AppCompatActivity {
                 .add(R.id.media_playback_view, mediaPlaybackFragment)
                 .commit();
     }
+
+
 }

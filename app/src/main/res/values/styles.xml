@@ -5,6 +5,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="actionBarSize">@dimen/music_toolbar</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -26,4 +27,9 @@
         <item name="android:textSize">18sp</item>
     </style>
 
+    <style name="ToolbarTheme.TitleTheme" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:textSize">28sp</item>
+    </style>
+
+    <dimen name="music_toolbar">74dp</dimen>
 </resources>
