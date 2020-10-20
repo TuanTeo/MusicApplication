@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bkav.musicapplication.R;
 import com.bkav.musicapplication.activity.AllSongFragment;
 import com.bkav.musicapplication.activity.MainActivity;
+import com.bkav.musicapplication.activity.MediaPlaybackActivity;
 import com.bkav.musicapplication.service.MediaPlaybackService;
 
 import java.security.AllPermission;
@@ -24,9 +25,9 @@ import java.util.ArrayList;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
 
+    public static final String SONG_POSITION = "SongPosition";
 
-    //Create List of Song
-    private ArrayList<Song> mListSongAdapter;
+    private ArrayList<Song> mListSongAdapter; //Create List of Song
     private LayoutInflater mInflater;
     private MainActivity mainActivity;
 
@@ -72,6 +73,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             holder.mPlayingSongImageLinearLayout.setVisibility(View.GONE);
         }
 
+
     }
 
     @Override
@@ -116,9 +118,16 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             if (v.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
                 //Show small playing area
                 mainActivity.showSmallPlayingArea();
+                //Get position of item
                 mLastItemPositionInt = getAdapterPosition();
+                //UpDate data on View
                 notifyDataSetChanged();
-                startMediaService();
+//                startMediaService();
+                mainActivity.getmMediaService().playMedia(getAdapterPosition());
+                mAllSongFragment.getmSongImageView()
+                        .setImageURI(Song.queryAlbumUri(
+                                mListSongAdapter.get(getAdapterPosition()).getmAlbumName()));
+
                 mAllSongFragment.upDateSmallPlayingRelativeLayout(mLastItemPositionInt);
             } else {
                 mLastItemPositionInt = getAdapterPosition();
@@ -128,10 +137,14 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         public void startMediaService() {
             Intent intent = new Intent(mSongAdapter.mainActivity.getApplicationContext(), MediaPlaybackService.class);
-            intent.putExtra("SongPosition", mLastItemPositionInt);
+            intent.putExtra(SONG_POSITION, mLastItemPositionInt);
             mSongAdapter.mainActivity.startService(intent);
             mSongAdapter.mainActivity.bindService(intent, mainActivity.getmServiceConnection(), Context.BIND_AUTO_CREATE);
         }
 
+        private void transPositionToMediaActivity(){
+            Intent intent = new Intent(mSongAdapter.mainActivity.getApplicationContext(), MediaPlaybackActivity.class);
+            intent.putExtra("SongPosition", mLastItemPositionInt);
+        }
     }
 }

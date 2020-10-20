@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <receiver
-            android:name=".broadcast.StartServiceBroadcast"
+            android:name=".broadcast.ServiceBroadcast"
             android:enabled="true"
             android:exported="true"></receiver>
 

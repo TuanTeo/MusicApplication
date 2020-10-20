@@ -38,17 +38,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Toast.makeText(MainActivity.this, "onServiceConnected", Toast.LENGTH_SHORT).show();
-
             //Tao doi tuong service
             MediaPlaybackService.BoundService bind = (MediaPlaybackService.BoundService) service;
             mMediaService = bind.getService(); //Get instance of service
-            mMediaService.registerClient(MainActivity.this);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Toast.makeText(MainActivity.this, "onServiceDisconnected", Toast.LENGTH_SHORT).show();
             mServiceConnection = null;
         }
     };
@@ -232,10 +228,26 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unbindService(mServiceConnection);
         Toast.makeText(MainActivity.this, "onDestroy: MainActivity", Toast.LENGTH_SHORT).show();
     }
 
     public ServiceConnection getmServiceConnection(){
         return mServiceConnection;
+    }
+
+    public MediaPlaybackService getmMediaService() {
+        return mMediaService;
+    }
+
+    public void setmMediaService(MediaPlaybackService mMediaService) {
+        this.mMediaService = mMediaService;
+    }
+
+    /**
+     *
+     */
+    public interface IBindService {
+        void onBind();
     }
 }

@@ -17,7 +17,8 @@ public class Song {
     public final String mAlbumName;
     public final int mArtistId;
     public final String mArtistName;
-    final int mYear;
+    public final int mYear;
+
 
     public Song(String title, int trackNumber, int mYear, int mDuration, String mPath, String mAlbumName, int mArtistId, String mArtistName) {
         this.mTitle = title;
@@ -91,7 +92,7 @@ public class Song {
         return mYear;
     }
 
-    public Uri queryAlbumUri(String imgUri) {   //dung album de load anh
+    public static Uri queryAlbumUri(String imgUri) {   //dung album de load anh
         final Uri artworkUri = Uri.parse("content://media/external/audio/albumart");
         return ContentUris.withAppendedId(artworkUri, Long.parseLong(imgUri));  //noi them imgUri vao artworkUri
     }
