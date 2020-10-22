@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -26,9 +27,7 @@ public class MediaPlaybackActivity extends AppCompatActivity {
             //Tao doi tuong service
             MediaPlaybackService.BoundService bind = (MediaPlaybackService.BoundService) service;
             mMediaService = bind.getService(); //Get instance of service
-//              if(mMediaService != null){
-            mBindServiceListener.onBind();
-//              }
+            Toast.makeText(mMediaService, "onServiceConnected: MediaActivity", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -41,17 +40,23 @@ public class MediaPlaybackActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.media_playback_activity);
-
+        bindMediaService();
         showMediaPlaybackFragment();
-        Intent intent = new Intent(MediaPlaybackActivity.this.getApplicationContext(), MediaPlaybackService.class);
-        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+    }
 
+    /**
+     * Bind to Service
+     */
+    public void bindMediaService() {
+        //Tao moi 1 Service tu MediaActivity => null
+        //Giai phap => lay Service hien co
+        Intent intent = new Intent(getApplicationContext(), MediaPlaybackService.class);
+        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(mServiceConnection);
     }
 
     private void showMediaPlaybackFragment() {
@@ -73,9 +78,11 @@ public class MediaPlaybackActivity extends AppCompatActivity {
     /**
      * Tuong tac giua Activity va Fragment
      * (MainActivity voi MediaPlaybackFragment)??
+     *
      * @param bindServiceListener
      */
     public void setBindServiceListener(MainActivity.IBindService bindServiceListener) {
         mBindServiceListener = bindServiceListener;
+        mBindServiceListener.onBind();
     }
 }

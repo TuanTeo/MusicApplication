@@ -31,6 +31,7 @@ import java.util.ArrayList;
  */
 public class AllSongFragment extends Fragment {
 
+    private MainActivity mMainActivity;
     private ServiceBroadcast mServiceBroadcast;
     private RelativeLayout mSmallPlayRelativeLayout;   //Relative to display Playing area
     private ImageView mSongImageView;
@@ -42,37 +43,17 @@ public class AllSongFragment extends Fragment {
     private RecyclerView mRecyclerView; //Recycleview object
 
 
-    private static AllSongFragment instance;
-    private AllSongFragment(){}
-
-    public static AllSongFragment getInstance(){
-        if(instance == null){
-            synchronized(AllSongFragment.class){
-                if(instance == null){
-                    instance = new AllSongFragment();
-                }
-            }
-        }
-        return instance;
-    }
-
-
     /**
      * Create all Items RecycleView
      *
      * @param view
      */
     public void createRecycleView(View view) {
-        ArrayList<Song> listAllSong = SongProvider.getInstance(getActivity().getApplicationContext()).getmListSong();
-        if(listAllSong.size() != 0){
-            mListSongAdapter.addAll(listAllSong);
-        }
-
-        mSongAdapter = new SongAdapter(mListSongAdapter, (MainActivity) getActivity());
+        mListSongAdapter = SongProvider.getInstance(getActivity().getApplicationContext()).getmListSong();
+        mSongAdapter = new SongAdapter(mListSongAdapter, mMainActivity);
         mRecyclerView = view.findViewById(R.id.list_song_recycleview);
         mRecyclerView.setAdapter(mSongAdapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
-
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mMainActivity.getApplicationContext()));
     }
 
     @Nullable
@@ -82,9 +63,9 @@ public class AllSongFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.all_list_song_fragment, container, false);
+        mMainActivity = (MainActivity) getActivity();
         createRecycleView(view);
         initView(view);
-
         setOnClick();
         return view;
     }
@@ -122,6 +103,13 @@ public class AllSongFragment extends Fragment {
         mPlayMediaImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(mMainActivity.getmMediaService().getmMediaPlayer().isPlaying()){
+                    mMainActivity.getmMediaService().pauseMedia();
+                    mPlayMediaImageButton.setImageResource(R.drawable.ic_media_play_light);
+                } else {
+                    mMainActivity.getmMediaService().resumeMedia();
+                    mPlayMediaImageButton.setImageResource(R.drawable.ic_media_pause_light);
+                }
 
             }
         });
@@ -132,10 +120,16 @@ public class AllSongFragment extends Fragment {
      * @param position
      */
     public void upDateSmallPlayingRelativeLayout(int position){
+        //Update Song Name, Artist Name, Play Button
         mCurrentSongNameTextView.setText(mListSongAdapter.get(position).getmTitle());
         mCurrentArtistNameTextView.setText(mListSongAdapter.get(position).getmArtistName());
         mPlayMediaImageButton.setImageResource(R.drawable.ic_media_pause_light);
-        mSongImageView.setImageBitmap(BitmapFactory.decodeFile(mListSongAdapter.get(position).getmAlbumName()));
+        //Update AlbumArt
+        mSongImageView.setImageURI(mListSongAdapter.get(position)
+                        .queryAlbumUri(mListSongAdapter.get(position).getmAlbumID()));
+        if(mSongImageView.getDrawable() == null){
+            mSongImageView.setImageResource(R.drawable.ic_reason_album);
+        }
     }
 
     public ImageView getmSongImageView() {

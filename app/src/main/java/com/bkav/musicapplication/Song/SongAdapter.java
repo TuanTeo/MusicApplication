@@ -17,15 +17,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bkav.musicapplication.R;
 import com.bkav.musicapplication.activity.AllSongFragment;
 import com.bkav.musicapplication.activity.MainActivity;
-import com.bkav.musicapplication.activity.MediaPlaybackActivity;
 import com.bkav.musicapplication.service.MediaPlaybackService;
 
-import java.security.AllPermission;
 import java.util.ArrayList;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
-
-    public static final String SONG_POSITION = "SongPosition";
 
     private ArrayList<Song> mListSongAdapter; //Create List of Song
     private LayoutInflater mInflater;
@@ -37,7 +33,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         this.mainActivity = context;
         this.mListSongAdapter = mListSongAdapter;
         this.mInflater = LayoutInflater.from(context);
-        this.mainActivity.setListSongMainActivity(mListSongAdapter);
     }
 
     @NonNull
@@ -57,7 +52,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (mLastItemPositionInt == position) {
                 holder.mSongNameItemTextView.setTextAppearance(R.style.SongTheme_NameSongClickOverLay);
-                //TODO ve tim hieu them
             } else {
                 holder.mSongNameItemTextView.setTextAppearance(R.style.SongTheme_NameSongOverLay);
             }
@@ -84,8 +78,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     public class SongViewHolder extends RecyclerView.ViewHolder
             implements RecyclerView.OnClickListener {
 
-        private AllSongFragment mAllSongFragment;
-
         private SongAdapter mSongAdapter;
         private TextView mSerialSongNumberTextView;
         private TextView mSongNameItemTextView;
@@ -102,14 +94,12 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         public SongViewHolder(@NonNull View itemView, SongAdapter mSongAdapter) {
             super(itemView);
             this.mSongAdapter = mSongAdapter;
-          //  Log.d("123", "SongViewHolder: "+mSongAdapter);
             mSerialSongNumberTextView = itemView.findViewById(R.id.serial_item_textview);
             mSongNameItemTextView = itemView.findViewById(R.id.song_name_item_textview);
             mTotalTimeSongItemTextView = itemView.findViewById(R.id.total_time_song_item_textview);
             mSongDetailItemImageButton = itemView.findViewById(R.id.song_detail_item);
             mPlayingSongImageLinearLayout = itemView.findViewById(R.id.playing_icon_layout);
             itemView.setOnClickListener(this);
-            mAllSongFragment = AllSongFragment.getInstance();
         }
 
         @Override
@@ -122,29 +112,17 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 mLastItemPositionInt = getAdapterPosition();
                 //UpDate data on View
                 notifyDataSetChanged();
-//                startMediaService();
-                mainActivity.getmMediaService().playMedia(getAdapterPosition());
-                mAllSongFragment.getmSongImageView()
-                        .setImageURI(Song.queryAlbumUri(
-                                mListSongAdapter.get(getAdapterPosition()).getmAlbumName()));
 
-                mAllSongFragment.upDateSmallPlayingRelativeLayout(mLastItemPositionInt);
+                //play Media
+                mainActivity.getmMediaService().playMedia(mLastItemPositionInt);
+                //Update UI in AllSongFragment
+                mainActivity.getmAllSongFragment().upDateSmallPlayingRelativeLayout(mLastItemPositionInt);
             } else {
                 mLastItemPositionInt = getAdapterPosition();
                 notifyDataSetChanged();
             }
         }
 
-        public void startMediaService() {
-            Intent intent = new Intent(mSongAdapter.mainActivity.getApplicationContext(), MediaPlaybackService.class);
-            intent.putExtra(SONG_POSITION, mLastItemPositionInt);
-            mSongAdapter.mainActivity.startService(intent);
-            mSongAdapter.mainActivity.bindService(intent, mainActivity.getmServiceConnection(), Context.BIND_AUTO_CREATE);
-        }
 
-        private void transPositionToMediaActivity(){
-            Intent intent = new Intent(mSongAdapter.mainActivity.getApplicationContext(), MediaPlaybackActivity.class);
-            intent.putExtra("SongPosition", mLastItemPositionInt);
-        }
     }
 }

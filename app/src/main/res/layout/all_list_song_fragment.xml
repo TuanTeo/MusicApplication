@@ -26,7 +26,7 @@
             android:layout_alignParentBottom="true"
             android:layout_gravity="bottom"
             android:background="#F1F1F1"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <ImageView
                 android:id="@+id/small_song_imageview"

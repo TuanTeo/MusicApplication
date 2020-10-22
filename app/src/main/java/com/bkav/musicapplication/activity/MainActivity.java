@@ -9,7 +9,9 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -30,7 +32,10 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String ALL_SONG_FRAGMENT_ID = "ALL_SONG_FRAGMENT_ID";
+
     private ArrayList<Song> mListSong;
+    private AllSongFragment mAllSongFragment;
     private RelativeLayout mSmallPlayingAreaRelativeLayout;
     private MediaPlaybackService mMediaService;
 
@@ -41,11 +46,12 @@ public class MainActivity extends AppCompatActivity {
             //Tao doi tuong service
             MediaPlaybackService.BoundService bind = (MediaPlaybackService.BoundService) service;
             mMediaService = bind.getService(); //Get instance of service
+            Toast.makeText(mMediaService, "onServiceConnected: MainActivity", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            mServiceConnection = null;
+            Toast.makeText(mMediaService, "Service DIsconnected", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -53,20 +59,33 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if(savedInstanceState != null){
+//            mAllSongFragment = (AllSongFragment) savedInstanceState.getInt(ALL_SONG_FRAGMENT_ID);
+        } else {
+            mAllSongFragment = new AllSongFragment();
+        }
 
         //Create Music app Toolbar
         setSupportActionBar(
                 (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar_main));
+
         //Permission READ_EXTERNAL_STORAGE
         isReadStoragePermissionGranted();
+        //Bind to service
+        bindMediaService();
         //Create Fragment View
         createMainView();
     }
 
-
+    public void bindMediaService() {
+        Intent intent = new Intent(getApplicationContext(), MediaPlaybackService.class);
+        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        Log.d("Service", mServiceConnection.toString());
+    }
 
     /**
      * Push item cua menu len toolbar
+     *
      * @param menu
      * @return
      */
@@ -78,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Set event for item clicked
+     *
      * @param item
      * @return
      */
@@ -119,7 +139,8 @@ public class MainActivity extends AppCompatActivity {
      */
     public void showAllSongFragment(int intRes) {
         getSupportFragmentManager().beginTransaction()
-                .replace(intRes, AllSongFragment.getInstance())
+                .replace(intRes, mAllSongFragment)
+                .addToBackStack(null)
                 .commit();
     }
 
@@ -134,8 +155,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public AllSongFragment getmAllSongFragment() {
+        return mAllSongFragment;
+    }
+
+    public void setmAllSongFragment(AllSongFragment mAllSongFragment) {
+        this.mAllSongFragment = mAllSongFragment;
+    }
+
     /**
      * Check read storage permission granted
+     *
      * @return
      */
     public boolean isReadStoragePermissionGranted() {
@@ -219,20 +249,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-
-    public void setListSongMainActivity(ArrayList<Song> mListSong){
-        Log.d("AllSongMainActivity", "setListSongMainActivity: ");
-        this.mListSong = mListSong;
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(mServiceConnection);
         Toast.makeText(MainActivity.this, "onDestroy: MainActivity", Toast.LENGTH_SHORT).show();
     }
 
-    public ServiceConnection getmServiceConnection(){
+    public ServiceConnection getmServiceConnection() {
         return mServiceConnection;
     }
 
@@ -249,5 +272,12 @@ public class MainActivity extends AppCompatActivity {
      */
     public interface IBindService {
         void onBind();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        int mAllSongID = mAllSongFragment.getId();
+        outState.putInt("ALL_SONG_FRAGMENT_ID", mAllSongID);
     }
 }

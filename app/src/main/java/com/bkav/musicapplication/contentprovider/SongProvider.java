@@ -44,6 +44,7 @@ public class SongProvider {
     private static final int ALBUM = 5;
     private static final int ARTIST_ID = 6;
     private static final int ARTIST = 7;
+    private static final int ALBUM_ID = 8;
 
     private static final String[] BASE_PROJECTION = new String[]{
             MediaStore.Audio.AudioColumns.TITLE,// 0
@@ -54,6 +55,7 @@ public class SongProvider {
             MediaStore.Audio.AudioColumns.ALBUM,// 5
             MediaStore.Audio.AudioColumns.ARTIST_ID,// 6
             MediaStore.Audio.AudioColumns.ARTIST,// 7
+            MediaStore.Audio.Albums.ALBUM_ID //8
     };
 
 
@@ -92,8 +94,9 @@ public class SongProvider {
         final String albumName = cursor.getString(ALBUM);
         final int artistId = cursor.getInt(ARTIST_ID);
         final String artistName = cursor.getString(ARTIST);
+        final String albumID = cursor.getString(ALBUM_ID);
 
-        return new Song(title, trackNumber, year, duration, uri, albumName, artistId, artistName);
+        return new Song(title, trackNumber, year, duration, uri, albumName, artistId, artistName, albumID);
     }
 
     /**

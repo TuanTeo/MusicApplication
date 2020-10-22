@@ -1,6 +1,7 @@
 package com.bkav.musicapplication.Song;
 
 import android.content.ContentUris;
+import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 
@@ -8,7 +9,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 public class Song {
-    static final Song EMPTY_SONG = new Song("", -1, -1, -1, null, "", -1, "");
+    static final Song EMPTY_SONG = new Song("", -1, -1, -1, null, "", -1, "", "");
 
     public final String mTitle;
     public final int mTrackNumber;
@@ -18,9 +19,10 @@ public class Song {
     public final int mArtistId;
     public final String mArtistName;
     public final int mYear;
+    public final String mAlbumID;
 
 
-    public Song(String title, int trackNumber, int mYear, int mDuration, String mPath, String mAlbumName, int mArtistId, String mArtistName) {
+    public Song(String title, int trackNumber, int mYear, int mDuration, String mPath, String mAlbumName, int mArtistId, String mArtistName, String mAlbumID) {
         this.mTitle = title;
         this.mTrackNumber = trackNumber;
         this.mYear = mYear;
@@ -29,6 +31,7 @@ public class Song {
         this.mAlbumName = mAlbumName;
         this.mArtistId = mArtistId;
         this.mArtistName = mArtistName;
+        this.mAlbumID = mAlbumID;
     }
 
     /**
@@ -90,6 +93,10 @@ public class Song {
 
     public int getmYear() {
         return mYear;
+    }
+
+    public String getmAlbumID() {
+        return mAlbumID;
     }
 
     public static Uri queryAlbumUri(String imgUri) {   //dung album de load anh

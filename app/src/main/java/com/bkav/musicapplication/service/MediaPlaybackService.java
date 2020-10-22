@@ -29,49 +29,36 @@ public class MediaPlaybackService extends Service {
 
     public static final String PLAY_MEDIA = "PlayMedia"; //Key for Broadcast to play media
 
+    private int mMediaPosition = -1;
+
+    private IBinder mIBinder = new BoundService();
     private ServiceBroadcast mStartServiceBroadcast;
     private MediaPlayer mMediaPlayer;
     private ArrayList<Song> mListAllSong = SongProvider.getInstanceNotCreate().getmListSong();
 
     @Override
     public void onCreate() {
-
-        Toast.makeText(this, "onCreate: Service", Toast.LENGTH_SHORT).show();
-
-        //TODO tao IntentFilter de doan nhan Broadcast
-        mStartServiceBroadcast = new ServiceBroadcast();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(PLAY_MEDIA);
-
-        //Dang ki Receiver
-        registerReceiver(mStartServiceBroadcast, intentFilter);
-
-        Log.d("MediaService", "onCreate: ");
         super.onCreate();
     }
-
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        Toast.makeText(this, "onBind: Service", Toast.LENGTH_SHORT).show();
-        return new BoundService();
+        return mIBinder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        return super.onUnbind(intent);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //Get position of media from intent
-        int position = intent.getIntExtra(SongAdapter.SONG_POSITION, -1);
-        //Play media
-        playMedia(position);
         return START_NOT_STICKY; //khong tao lai Service khi app bi tat ngang
     }
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "onDestroy: Service", Toast.LENGTH_SHORT).show();
-        //Huy dang ki Receiver
-        unregisterReceiver(mStartServiceBroadcast);
         super.onDestroy();
     }
 
@@ -88,6 +75,9 @@ public class MediaPlaybackService extends Service {
         return SongProvider.getInstanceNotCreate().getmListSong();
     }
 
+    public int getmMediaPosition() {
+        return mMediaPosition;
+    }
 
     public void playMedia(int position){
         try {
@@ -96,8 +86,21 @@ public class MediaPlaybackService extends Service {
             mMediaPlayer.setDataSource(mListAllSong.get(position).getmPath());
             mMediaPlayer.prepare();
             mMediaPlayer.start();
+            mMediaPosition = position;
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void pauseMedia(){
+        if(mMediaPlayer.isPlaying()){
+            mMediaPlayer.pause();
+        }
+    }
+
+    public void resumeMedia(){
+        if(!mMediaPlayer.isPlaying()){
+            mMediaPlayer.start();
         }
     }
 
