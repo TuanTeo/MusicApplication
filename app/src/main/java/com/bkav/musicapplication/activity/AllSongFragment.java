@@ -32,7 +32,7 @@ import java.util.ArrayList;
 public class AllSongFragment extends Fragment {
 
     private MainActivity mMainActivity;
-    private ServiceBroadcast mServiceBroadcast;
+    private RelativeLayout mSmallPlayingAreaRelativeLayout;
     private RelativeLayout mSmallPlayRelativeLayout;   //Relative to display Playing area
     private ImageView mSongImageView;
     private TextView mCurrentSongNameTextView;
@@ -70,8 +70,12 @@ public class AllSongFragment extends Fragment {
         return view;
     }
 
-    private void registerServiceBroadcast(){
-        Intent intent = new Intent("PLAY");
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(mMainActivity.getmMediaService() != null){
+            upDateSmallPlayingRelativeLayout();
+        }
     }
 
     /**
@@ -84,6 +88,7 @@ public class AllSongFragment extends Fragment {
         mCurrentSongNameTextView = view.findViewById(R.id.small_name_current_song);
         mCurrentArtistNameTextView = view.findViewById(R.id.small_singer_name_current_song);
         mPlayMediaImageButton = view.findViewById(R.id.small_play_imagebutton);
+        mSmallPlayingAreaRelativeLayout = view.findViewById(R.id.small_playing_area);
     }
 
     /**
@@ -94,6 +99,7 @@ public class AllSongFragment extends Fragment {
         mSmallPlayRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Dung 2 Activity
                 Intent intent = new Intent(getActivity().getApplicationContext(), MediaPlaybackActivity.class);
                 startActivity(intent);
             }
@@ -116,14 +122,28 @@ public class AllSongFragment extends Fragment {
     }
 
     /**
-     * Update UI for SmallPlayingRelativeLayout on AllSongFragment
-     * @param position
+     * Show Small Playing Area
      */
-    public void upDateSmallPlayingRelativeLayout(int position){
+    public void showSmallPlayingArea() {
+        if (mSmallPlayingAreaRelativeLayout.getVisibility() == View.GONE) {
+            mSmallPlayingAreaRelativeLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Update UI for SmallPlayingRelativeLayout on AllSongFragment
+     */
+    public void upDateSmallPlayingRelativeLayout(){
+        int position = mMainActivity.getmMediaService().getmMediaPosition();
         //Update Song Name, Artist Name, Play Button
         mCurrentSongNameTextView.setText(mListSongAdapter.get(position).getmTitle());
         mCurrentArtistNameTextView.setText(mListSongAdapter.get(position).getmArtistName());
-        mPlayMediaImageButton.setImageResource(R.drawable.ic_media_pause_light);
+        if(mMainActivity.getmMediaService().getmMediaPlayer().isPlaying()){
+            mPlayMediaImageButton.setImageResource(R.drawable.ic_media_pause_light);
+        } else {
+            mPlayMediaImageButton.setImageResource(R.drawable.ic_media_play_light);
+        }
+
         //Update AlbumArt
         mSongImageView.setImageURI(mListSongAdapter.get(position)
                         .queryAlbumUri(mListSongAdapter.get(position).getmAlbumID()));
@@ -134,9 +154,5 @@ public class AllSongFragment extends Fragment {
 
     public ImageView getmSongImageView() {
         return mSongImageView;
-    }
-
-    public void setmSongImageView(ImageView mSongImageView) {
-        this.mSongImageView = mSongImageView;
     }
 }

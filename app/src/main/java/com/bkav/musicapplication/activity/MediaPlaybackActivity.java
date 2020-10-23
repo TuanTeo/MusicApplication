@@ -13,12 +13,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bkav.musicapplication.R;
+import com.bkav.musicapplication.contentprovider.SongProvider;
 import com.bkav.musicapplication.service.MediaPlaybackService;
 
 public class MediaPlaybackActivity extends AppCompatActivity {
 
     private MediaPlaybackService mMediaService;
     private MainActivity.IBindService mBindServiceListener;
+
     private ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
@@ -26,8 +28,8 @@ public class MediaPlaybackActivity extends AppCompatActivity {
 
             //Tao doi tuong service
             MediaPlaybackService.BoundService bind = (MediaPlaybackService.BoundService) service;
-            mMediaService = bind.getService(); //Get instance of service
-            Toast.makeText(mMediaService, "onServiceConnected: MediaActivity", Toast.LENGTH_SHORT).show();
+            mMediaService = bind.getService(); //Get instance of servive
+            showMediaPlaybackFragment();
         }
 
         @Override
@@ -36,12 +38,18 @@ public class MediaPlaybackActivity extends AppCompatActivity {
         }
     };
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.media_playback_activity);
         bindMediaService();
-        showMediaPlaybackFragment();
+//        showMediaPlaybackFragment();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     /**
@@ -51,7 +59,7 @@ public class MediaPlaybackActivity extends AppCompatActivity {
         //Tao moi 1 Service tu MediaActivity => null
         //Giai phap => lay Service hien co
         Intent intent = new Intent(getApplicationContext(), MediaPlaybackService.class);
-        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        getApplicationContext().bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
     }
 
     @Override
@@ -71,9 +79,6 @@ public class MediaPlaybackActivity extends AppCompatActivity {
         return mMediaService;
     }
 
-    public void setmMediaService(MediaPlaybackService mMediaService) {
-        this.mMediaService = mMediaService;
-    }
 
     /**
      * Tuong tac giua Activity va Fragment
@@ -83,6 +88,5 @@ public class MediaPlaybackActivity extends AppCompatActivity {
      */
     public void setBindServiceListener(MainActivity.IBindService bindServiceListener) {
         mBindServiceListener = bindServiceListener;
-        mBindServiceListener.onBind();
     }
 }

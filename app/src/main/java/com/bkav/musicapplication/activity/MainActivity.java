@@ -32,11 +32,10 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String ALL_SONG_FRAGMENT_ID = "ALL_SONG_FRAGMENT_ID";
+//    public static final String ALL_SONG_FRAGMENT_ID = "ALL_SONG_FRAGMENT_ID";
 
-    private ArrayList<Song> mListSong;
     private AllSongFragment mAllSongFragment;
-    private RelativeLayout mSmallPlayingAreaRelativeLayout;
+    private MediaPlaybackFragment mMediaPlaybackFragment;
     private MediaPlaybackService mMediaService;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -59,11 +58,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if(savedInstanceState != null){
-//            mAllSongFragment = (AllSongFragment) savedInstanceState.getInt(ALL_SONG_FRAGMENT_ID);
-        } else {
-            mAllSongFragment = new AllSongFragment();
-        }
+
 
         //Create Music app Toolbar
         setSupportActionBar(
@@ -71,6 +66,12 @@ public class MainActivity extends AppCompatActivity {
 
         //Permission READ_EXTERNAL_STORAGE
         isReadStoragePermissionGranted();
+        if(savedInstanceState != null){
+//            mAllSongFragment = (AllSongFragment) savedInstanceState.getInt(ALL_SONG_FRAGMENT_ID);
+        } else {
+            mAllSongFragment = new AllSongFragment();
+            mMediaPlaybackFragment = new MediaPlaybackFragment();
+        }
         //Bind to service
         bindMediaService();
         //Create Fragment View
@@ -80,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
     public void bindMediaService() {
         Intent intent = new Intent(getApplicationContext(), MediaPlaybackService.class);
         bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
-        Log.d("Service", mServiceConnection.toString());
     }
 
     /**
@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
      * Show Detail Media Fragment
      */
     public void showMediaFragment(int intRes) {
-        MediaPlaybackFragment mMediaPlaybackFragment = new MediaPlaybackFragment();
+
         getSupportFragmentManager().beginTransaction()
                 .replace(intRes, mMediaPlaybackFragment)
                 .commit();
@@ -140,27 +140,11 @@ public class MainActivity extends AppCompatActivity {
     public void showAllSongFragment(int intRes) {
         getSupportFragmentManager().beginTransaction()
                 .replace(intRes, mAllSongFragment)
-                .addToBackStack(null)
                 .commit();
-    }
-
-    /**
-     * Show Small Playing Area
-     */
-    public void showSmallPlayingArea() {
-        mSmallPlayingAreaRelativeLayout = findViewById(R.id.small_playing_area);
-        if (mSmallPlayingAreaRelativeLayout.getVisibility() == View.GONE) {
-            mSmallPlayingAreaRelativeLayout.setVisibility(View.VISIBLE);
-        }
-
     }
 
     public AllSongFragment getmAllSongFragment() {
         return mAllSongFragment;
-    }
-
-    public void setmAllSongFragment(AllSongFragment mAllSongFragment) {
-        this.mAllSongFragment = mAllSongFragment;
     }
 
     /**
@@ -255,16 +239,8 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(MainActivity.this, "onDestroy: MainActivity", Toast.LENGTH_SHORT).show();
     }
 
-    public ServiceConnection getmServiceConnection() {
-        return mServiceConnection;
-    }
-
     public MediaPlaybackService getmMediaService() {
         return mMediaService;
-    }
-
-    public void setmMediaService(MediaPlaybackService mMediaService) {
-        this.mMediaService = mMediaService;
     }
 
     /**

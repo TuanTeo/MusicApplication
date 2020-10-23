@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/media_playback_area"
-    android:background="@drawable/ic_launcher_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -22,7 +21,7 @@
 
         <TextView
             android:id="@+id/media_name_song_current"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="@string/name_current_song_label"
             android:maxLines="1"
@@ -33,7 +32,7 @@
             android:layout_toRightOf="@+id/media_album_small_image" />
         <TextView
             android:id="@+id/media_name_singer_current"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="@string/singer_name_current_song_label"
             android:textSize="15sp"

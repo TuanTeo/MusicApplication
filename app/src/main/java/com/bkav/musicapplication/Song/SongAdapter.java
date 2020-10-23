@@ -107,7 +107,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
             if (v.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
                 //Show small playing area
-                mainActivity.showSmallPlayingArea();
+                mainActivity.getmAllSongFragment().showSmallPlayingArea();
                 //Get position of item
                 mLastItemPositionInt = getAdapterPosition();
                 //UpDate data on View
@@ -116,7 +116,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 //play Media
                 mainActivity.getmMediaService().playMedia(mLastItemPositionInt);
                 //Update UI in AllSongFragment
-                mainActivity.getmAllSongFragment().upDateSmallPlayingRelativeLayout(mLastItemPositionInt);
+                mainActivity.getmAllSongFragment().upDateSmallPlayingRelativeLayout();
             } else {
                 mLastItemPositionInt = getAdapterPosition();
                 notifyDataSetChanged();
