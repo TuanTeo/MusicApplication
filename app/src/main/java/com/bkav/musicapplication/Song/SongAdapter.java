@@ -44,30 +44,54 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
-        //Set Name song
-        holder.mSongNameItemTextView.setText(mListSongAdapter.get(position).getmTitle());
-        holder.mTotalTimeSongItemTextView.setText(mListSongAdapter.get(position).getmDurationString());
+        if(mainActivity.getmMediaService() != null){
+            mLastItemPositionInt = mainActivity.getmMediaService().getmMediaPosition();
+            //Set Name song
+            holder.mSongNameItemTextView.setText(mListSongAdapter.get(position).getmTitle());
+            holder.mTotalTimeSongItemTextView.setText(mListSongAdapter.get(position).getmDurationString());
 
-        //Set font
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (mLastItemPositionInt == position) {
-                holder.mSongNameItemTextView.setTextAppearance(R.style.SongTheme_NameSongClickOverLay);
+            //Set font
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (position == mLastItemPositionInt) {
+                    holder.mSongNameItemTextView.setTextAppearance(R.style.SongTheme_NameSongClickOverLay);
+                } else {
+                    holder.mSongNameItemTextView.setTextAppearance(R.style.SongTheme_NameSongOverLay);
+                }
+            }
+
+            //Set Serial
+            if (position == mLastItemPositionInt) {
+                holder.mSerialSongNumberTextView.setVisibility(View.INVISIBLE);
+                holder.mPlayingSongImageLinearLayout.setVisibility(View.VISIBLE);
             } else {
-                holder.mSongNameItemTextView.setTextAppearance(R.style.SongTheme_NameSongOverLay);
+                holder.mSerialSongNumberTextView.setText((position + 1) + "");
+                holder.mSerialSongNumberTextView.setVisibility(View.VISIBLE);
+                holder.mPlayingSongImageLinearLayout.setVisibility(View.GONE);
+            }
+        } else {
+            //Set Name song
+            holder.mSongNameItemTextView.setText(mListSongAdapter.get(position).getmTitle());
+            holder.mTotalTimeSongItemTextView.setText(mListSongAdapter.get(position).getmDurationString());
+
+            //Set font
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (position == mLastItemPositionInt) {
+                    holder.mSongNameItemTextView.setTextAppearance(R.style.SongTheme_NameSongClickOverLay);
+                } else {
+                    holder.mSongNameItemTextView.setTextAppearance(R.style.SongTheme_NameSongOverLay);
+                }
+            }
+
+            //Set Serial
+            if (position == mLastItemPositionInt) {
+                holder.mSerialSongNumberTextView.setVisibility(View.INVISIBLE);
+                holder.mPlayingSongImageLinearLayout.setVisibility(View.VISIBLE);
+            } else {
+                holder.mSerialSongNumberTextView.setText((position + 1) + "");
+                holder.mSerialSongNumberTextView.setVisibility(View.VISIBLE);
+                holder.mPlayingSongImageLinearLayout.setVisibility(View.GONE);
             }
         }
-
-        //Set Serial
-        if (mLastItemPositionInt == position) {
-            holder.mSerialSongNumberTextView.setVisibility(View.INVISIBLE);
-            holder.mPlayingSongImageLinearLayout.setVisibility(View.VISIBLE);
-        } else {
-            holder.mSerialSongNumberTextView.setText((position + 1) + "");
-            holder.mSerialSongNumberTextView.setVisibility(View.VISIBLE);
-            holder.mPlayingSongImageLinearLayout.setVisibility(View.GONE);
-        }
-
-
     }
 
     @Override
@@ -122,7 +146,5 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 notifyDataSetChanged();
             }
         }
-
-
     }
 }

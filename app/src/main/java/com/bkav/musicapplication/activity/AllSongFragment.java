@@ -66,6 +66,9 @@ public class AllSongFragment extends Fragment {
         mMainActivity = (MainActivity) getActivity();
         createRecycleView(view);
         initView(view);
+        if(savedInstanceState != null){
+            mSmallPlayRelativeLayout.setVisibility(savedInstanceState.getInt("IS_PLAYING_VISIBLE"));
+        }
         setOnClick();
         return view;
     }
@@ -150,9 +153,15 @@ public class AllSongFragment extends Fragment {
         if(mSongImageView.getDrawable() == null){
             mSongImageView.setImageResource(R.drawable.ic_reason_album);
         }
+        //Update UI for Adapter
+        mSongAdapter.notifyDataSetChanged();
+        //Scroll to playing position
+        mRecyclerView.smoothScrollToPosition(position);
     }
 
-    public ImageView getmSongImageView() {
-        return mSongImageView;
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("IS_PLAYING_VISIBLE", mSmallPlayRelativeLayout.getVisibility());
     }
 }

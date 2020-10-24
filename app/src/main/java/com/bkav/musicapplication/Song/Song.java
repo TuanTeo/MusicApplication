@@ -7,6 +7,7 @@ import android.net.Uri;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 
 public class Song {
     static final Song EMPTY_SONG = new Song("", -1, -1, -1, null, "", -1, "", "");
@@ -39,25 +40,10 @@ public class Song {
      */
     public String getmDurationString(){
         int totalTime = mDuration;
-        int minutes = 0;
-        int seconds = 0;
-        String durationString;
-        NumberFormat formatter;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+        simpleDateFormat.format(totalTime);
 
-        if((totalTime / 1000 / 60) > 0){ //Nhieu hon 1 minutes
-            minutes = totalTime / 1000 / 60;
-            totalTime -= minutes * (1000 * 60);
-        }
-        if(totalTime / 1000 > 0){ //Nhieu hon 1s
-            seconds = totalTime / 1000;
-        }
-
-        //Format time to mm:ss
-        formatter = new DecimalFormat("##00");
-        durationString = formatter.format(minutes) + ":";
-        durationString += formatter.format(seconds);
-
-        return durationString;
+        return simpleDateFormat.format(totalTime);
     }
 
     /**

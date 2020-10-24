@@ -30,6 +30,7 @@ public class MediaPlaybackActivity extends AppCompatActivity {
             MediaPlaybackService.BoundService bind = (MediaPlaybackService.BoundService) service;
             mMediaService = bind.getService(); //Get instance of servive
             showMediaPlaybackFragment();
+//            mBindServiceListener.onBind();
         }
 
         @Override

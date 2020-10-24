@@ -23,8 +23,10 @@ import com.bkav.musicapplication.MediaStatus;
 import com.bkav.musicapplication.R;
 import com.bkav.musicapplication.Song.Song;
 import com.bkav.musicapplication.contentprovider.SongProvider;
+import com.bkav.musicapplication.service.MediaPlaybackService;
 
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
@@ -53,6 +55,9 @@ public class MediaPlaybackFragment extends Fragment
     //Get MediaPlayBack activity
     private MediaPlaybackActivity mMediaPlaybackActivity;
 
+    //Get MediaService
+    MediaPlaybackService mMediaPlaybackService;
+
     //Get List all song
     private ArrayList<Song> mListAllSong;
 
@@ -63,17 +68,37 @@ public class MediaPlaybackFragment extends Fragment
 
     //Media Status
     MediaStatus mMediaStatus = MediaStatus.NONE;
-    //TODO:Handler object to do update current play time
-    private Handler mHandler = new Handler() {
+
+    //SimpleDateFormat to format song time
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");;
+
+    //TODO:Handler object to do update current play time - is a thread, send message each delay time
+    private Handler mHandler = new Handler()
+    {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            int position = msg.arg1;
-            position += 1;
-            mSongSeekBar.setProgress(position);
+//            int position = msg.arg1;
+//            position += 1000;
+//            mSongSeekBar.setProgress(position);
+
+            //Update Current time to TextView
+            mCurrentTimeTextView.setText(
+                    simpleDateFormat.format(
+                            mMediaPlaybackService.getmMediaPlayer().getCurrentPosition()));
+            //Update Current Progress to SeekBar
+            mSongSeekBar.setProgress(
+                    mMediaPlaybackService.getmMediaPlayer().getCurrentPosition());
+            //Auto next Song
+            if(mMediaPlaybackService.getmMediaPlayer().getCurrentPosition() >=
+                    (mMediaPlaybackService.getmMediaPlayer().getDuration())){
+                mMediaPlaybackService.autoNextMedia();
+                upDateInfoView();
+            }
+
             Message message = new Message();
-            message.arg1 = position;
-            sendMessageDelayed(message, 1000);
+//            message.arg1 = position;
+            sendMessageDelayed(message, 500);
         }
     };
 
@@ -89,6 +114,7 @@ public class MediaPlaybackFragment extends Fragment
         //Get MediaPlaybackActivity object
         mMediaPlaybackActivity = ((MediaPlaybackActivity) getActivity());
         mMediaPlaybackActivity.setBindServiceListener(this);
+        mMediaPlaybackService = mMediaPlaybackActivity.getmMediaService();
 
         //initial components view
         initialView(view);
@@ -98,12 +124,6 @@ public class MediaPlaybackFragment extends Fragment
         upDateInfoView();
         //Return Fragment view
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
     }
 
     private void setOnClick() {
@@ -138,7 +158,7 @@ public class MediaPlaybackFragment extends Fragment
                     mMediaStatus = MediaStatus.SHUFFLE;
                     mRepeatImageButton.setImageResource(R.drawable.ic_repeat_white);
                 }
-                mMediaPlaybackActivity.getmMediaService().setmMediaStatus(mMediaStatus);
+                mMediaPlaybackService.setmMediaStatus(mMediaStatus);
                 Toast.makeText(mMediaPlaybackActivity, mMediaStatus + "", Toast.LENGTH_SHORT).show();
             }
         });
@@ -172,8 +192,7 @@ public class MediaPlaybackFragment extends Fragment
                     mShuffleImageButton.setImageResource(R.drawable.ic_shuffle_white);
                     mIsShuffle = false;
                 }
-                mMediaPlaybackActivity.getmMediaService().
-                setmMediaStatus(mMediaStatus);
+                mMediaPlaybackService.setmMediaStatus(mMediaStatus);
                 Toast.makeText(mMediaPlaybackActivity, mMediaStatus + "", Toast.LENGTH_SHORT).show();
             }
         });
@@ -182,11 +201,11 @@ public class MediaPlaybackFragment extends Fragment
         mPlayImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mMediaPlaybackActivity.getmMediaService().getmMediaPlayer().isPlaying()) {
-                    mMediaPlaybackActivity.getmMediaService().pauseMedia();
+                if (mMediaPlaybackService.getmMediaPlayer().isPlaying()) {
+                    mMediaPlaybackService.pauseMedia();
                     mPlayImageButton.setImageResource(R.drawable.ic_media_play_light);
                 } else {
-                    mMediaPlaybackActivity.getmMediaService().resumeMedia();
+                    mMediaPlaybackService.resumeMedia();
                     mPlayImageButton.setImageResource(R.drawable.ic_media_pause_light);
                 }
             }
@@ -196,9 +215,10 @@ public class MediaPlaybackFragment extends Fragment
         mNextImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mMediaPlaybackActivity.getmMediaService().nextMedia();
+                mMediaPlaybackService.nextMedia();
                 mPlayImageButton.setImageResource(R.drawable.ic_media_pause_light);
                 upDateInfoView();
+
             }
         });
 
@@ -206,14 +226,14 @@ public class MediaPlaybackFragment extends Fragment
         mPreviousImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mMediaPlaybackActivity.getmMediaService().getmMediaPlayer().getCurrentPosition() >= 3000) {
-                    mMediaPlaybackActivity.getmMediaService().repeatMedia();
-                } else if (mMediaPlaybackActivity.getmMediaService().getmMediaPosition() == 0) {
-                    mMediaPlaybackActivity.getmMediaService()
-                            .playMedia(mMediaPlaybackActivity.getmMediaService().getListSongService().size() - 1);
+                if (mMediaPlaybackService.getmMediaPlayer().getCurrentPosition() >= 3000) {
+                    mMediaPlaybackService.repeatMedia();
+                } else if (mMediaPlaybackService.getmMediaPosition() == 0) {
+                    mMediaPlaybackService
+                            .playMedia(mMediaPlaybackService.getListSongService().size() - 1);
                 } else {
-                    mMediaPlaybackActivity.getmMediaService()
-                            .playMedia((mMediaPlaybackActivity.getmMediaService().getmMediaPosition() - 1));
+                    mMediaPlaybackService
+                            .playMedia((mMediaPlaybackService.getmMediaPosition() - 1));
                 }
                 mPlayImageButton.setImageResource(R.drawable.ic_media_pause_light);
                 upDateInfoView();
@@ -222,15 +242,25 @@ public class MediaPlaybackFragment extends Fragment
     }
 
     private void upDateInfoView() {
-        if (mMediaPlaybackActivity.getmMediaService() != null) {
-            if(mMediaPlaybackActivity.getmMediaService().getmMediaPlayer().isPlaying()){
+        //upDateTimeSong();
+        //// TODO: 10/24/20 thanhnch se xem van de khong goi duoc interface trong onbind sevice
+
+        if (mMediaPlaybackService.getmMediaPlayer().isPlaying()) {
+            //TODO: what is Message? and what do it do?
+            Message message = new Message();
+            message.arg1 = mMediaPlaybackService.getmMediaPlayer().getCurrentPosition();
+            mHandler.sendMessage(message);
+        }
+
+        if (mMediaPlaybackService != null) {
+            if(mMediaPlaybackService.getmMediaPlayer().isPlaying()){
                 mPlayImageButton.setImageResource(R.drawable.ic_media_pause_light);
             } else{
                 mPlayImageButton.setImageResource(R.drawable.ic_media_play_light);
             }
 
             //Get song position
-            int songPositon = mMediaPlaybackActivity.getmMediaService().getmMediaPosition();
+            int songPositon = mMediaPlaybackService.getmMediaPosition();
             //Set song name view
             mSongNameTextView.setText(mListAllSong.get(songPositon).getmTitle());
             //Set artist name view
@@ -247,13 +277,13 @@ public class MediaPlaybackFragment extends Fragment
 
             //Set total time view
             mTotalTimeTextView.setText(mListAllSong.get(songPositon).getmDurationString());
+            mSongSeekBar.setMax(mListAllSong.get(songPositon).getmDuration());
         }
     }
 
     private void initialView(View view) {
         //Work with SeekBar
         mSongSeekBar = view.findViewById(R.id.seek_bar_play_song);
-        mSongSeekBar.setMax(100);
         //Lang nghe su kien cho SeekBar
         mSongSeekBar.setOnSeekBarChangeListener(this);
 
@@ -274,16 +304,10 @@ public class MediaPlaybackFragment extends Fragment
         mPlayImageButton = view.findViewById(R.id.media_play_button);
     }
 
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-//        mMainActivity.setBindServiceListener(null);
-    }
-
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         Log.d("MediaPlaybackFragment", "onProgressChanged: ");
+
     }
 
     @Override
@@ -293,9 +317,37 @@ public class MediaPlaybackFragment extends Fragment
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-//        mSongSeekBar.getProgress();
-//        ((MainActivity) getActivity()).getmMediaService().
+        mMediaPlaybackService.getmMediaPlayer().seekTo(mSongSeekBar.getProgress());
         Log.d("MediaPlaybackFragment", "onStopTrackingTouch: ");
+    }
+
+    /**
+     * Update CurrentTime for SeekBar
+     * (Copy: KhoaPham)
+     */
+    private void upDateTimeSong(){
+//        mHandler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+//                //Update Current time to TextView
+//                mCurrentTimeTextView.setText(
+//                        simpleDateFormat.format(
+//                                mMediaPlaybackService.getmMediaPlayer().getCurrentPosition()));
+//
+//                //Auto next Song
+//                if(mMediaPlaybackService.getmMediaPlayer().getCurrentPosition() >=
+//                        (mMediaPlaybackService.getmMediaPlayer().getDuration() - 200)){
+//                    mMediaPlaybackService.nextMedia();
+//                    upDateInfoView();
+//                }
+//                //Update Current Progress to SeekBar
+//                mSongSeekBar.setProgress(
+//                        mMediaPlaybackService.getmMediaPlayer().getCurrentPosition());
+//                //CallBack
+//                mHandler.postDelayed(this, 200);
+//            }
+//        }, 100);
     }
 
     /**
@@ -303,11 +355,11 @@ public class MediaPlaybackFragment extends Fragment
      */
     @Override
     public void onBind() {
-        if (mMediaPlaybackActivity.getmMediaService().getmMediaPlayer().isPlaying()) {
-            //TODO: what is Message? and what do it do?
-            Message message = new Message();
-            message.arg1 = mMediaPlaybackActivity.getmMediaService().getmMediaPlayer().getCurrentPosition();
-            mHandler.sendMessage(message);
-        }
+//        if (mMediaPlaybackService.getmMediaPlayer().isPlaying()) {
+//            //TODO: what is Message? and what do it do?
+//            Message message = new Message();
+//            message.arg1 = mMediaPlaybackService.getmMediaPlayer().getCurrentPosition();
+//            mHandler.sendMessage(message);
+//        }
     }
 }

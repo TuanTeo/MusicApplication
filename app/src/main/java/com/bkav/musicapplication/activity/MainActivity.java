@@ -119,8 +119,8 @@ public class MainActivity extends AppCompatActivity {
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             showAllSongFragment(R.id.container);
         } else {
-            showAllSongFragment(R.id.container_left);
-            showMediaFragment(R.id.container_right);
+//            showAllSongFragment(R.id.container_left);
+//            showMediaFragment(R.id.container_right);
         }
     }
 
@@ -236,7 +236,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Toast.makeText(MainActivity.this, "onDestroy: MainActivity", Toast.LENGTH_SHORT).show();
+        unbindService(mServiceConnection);
+        Toast.makeText(mMediaService, "UnBind to Service", Toast.LENGTH_SHORT).show();
     }
 
     public MediaPlaybackService getmMediaService() {
@@ -250,10 +251,4 @@ public class MainActivity extends AppCompatActivity {
         void onBind();
     }
 
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        int mAllSongID = mAllSongFragment.getId();
-        outState.putInt("ALL_SONG_FRAGMENT_ID", mAllSongID);
-    }
 }

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -57,6 +58,7 @@ public class MediaPlaybackService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Toast.makeText(this, "Destroy Service", Toast.LENGTH_SHORT).show();
     }
 
     //Tra ve 1 doi tuong MediaPlaybackService
@@ -70,6 +72,20 @@ public class MediaPlaybackService extends Service {
         return SongProvider.getInstanceNotCreate().getmListSong();
     }
 
+    public void autoNextMedia(){
+        if (mMediaStatus == MediaStatus.SHUFFLE
+                || mMediaStatus == MediaStatus.REPEAT_AND_SHUFFLE) {
+            nextByShuffleWithButton();
+        } else if(mMediaStatus == MediaStatus.NONE){
+            /*Don't continue play*/
+        } else if(mMediaStatus == MediaStatus.REPEAT_ONE
+                || mMediaStatus == MediaStatus.REPEAT_ONE_AND_SHUFFLE){
+            repeatMedia();
+        } else {
+            nextWithButton();
+        }
+    }
+
     public void nextMedia() {
         if (mMediaStatus == MediaStatus.SHUFFLE
                 || mMediaStatus == MediaStatus.REPEAT_AND_SHUFFLE
@@ -81,8 +97,14 @@ public class MediaPlaybackService extends Service {
     }
 
     public void prevMedia() {
-        if (mMediaStatus == MediaStatus.NONE) {
-
+        if (mMediaStatus == MediaStatus.NONE) { //Prev with NONE Status
+            if (mMediaPlayer.getCurrentPosition() >= 3000) {
+                repeatMedia();
+            } else if (getmMediaPosition() == 0) {
+                playMedia(getListSongService().size() - 1);
+            } else {
+                playMedia((getmMediaPosition() - 1));
+            }
         } else if (mMediaStatus == MediaStatus.REPEAT_ALL) {
 
         } else if (mMediaStatus == MediaStatus.SHUFFLE
