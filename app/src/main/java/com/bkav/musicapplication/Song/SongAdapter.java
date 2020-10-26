@@ -3,6 +3,7 @@ package com.bkav.musicapplication.Song;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -139,6 +140,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
                 //play Media
                 mainActivity.getmMediaService().playMedia(mLastItemPositionInt);
+//
                 //Update UI in AllSongFragment
                 mainActivity.getmAllSongFragment().upDateSmallPlayingRelativeLayout();
             } else {

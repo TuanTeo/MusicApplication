@@ -18,6 +18,8 @@ import com.bkav.musicapplication.service.MediaPlaybackService;
 
 public class MediaPlaybackActivity extends AppCompatActivity {
 
+    private boolean mIsBindService = false;
+
     private MediaPlaybackService mMediaService;
     private MainActivity.IBindService mBindServiceListener;
 
@@ -29,13 +31,14 @@ public class MediaPlaybackActivity extends AppCompatActivity {
             //Tao doi tuong service
             MediaPlaybackService.BoundService bind = (MediaPlaybackService.BoundService) service;
             mMediaService = bind.getService(); //Get instance of servive
+            mIsBindService = true;
             showMediaPlaybackFragment();
 //            mBindServiceListener.onBind();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            mServiceConnection = null;
+
         }
     };
 
@@ -66,6 +69,10 @@ public class MediaPlaybackActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(mIsBindService){
+            getApplicationContext().unbindService(mServiceConnection);
+            mIsBindService = false;
+        }
     }
 
     private void showMediaPlaybackFragment() {
@@ -79,6 +86,7 @@ public class MediaPlaybackActivity extends AppCompatActivity {
     public MediaPlaybackService getmMediaService() {
         return mMediaService;
     }
+
 
 
     /**

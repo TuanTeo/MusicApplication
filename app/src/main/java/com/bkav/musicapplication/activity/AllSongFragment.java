@@ -2,7 +2,11 @@ package com.bkav.musicapplication.activity;
 
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +46,21 @@ public class AllSongFragment extends Fragment {
     private SongAdapter mSongAdapter;   //song Adapter object
     private RecyclerView mRecyclerView; //Recycleview object
 
+    private Handler mHandler = new Handler(){   //Handle object as a Thread
+        private int songPosition = -1;
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            if(songPosition != mMainActivity.getmMediaService().getmMediaPosition()){
+                upDateSmallPlayingRelativeLayout();
+                mSongAdapter.notifyDataSetChanged();
+            }
+            songPosition = mMainActivity.getmMediaService().getmMediaPosition();
+
+            Message message = new Message();
+            sendMessageDelayed(message, 1000);
+        }
+    };
 
     /**
      * Create all Items RecycleView
@@ -137,6 +156,9 @@ public class AllSongFragment extends Fragment {
      * Update UI for SmallPlayingRelativeLayout on AllSongFragment
      */
     public void upDateSmallPlayingRelativeLayout(){
+        Message message = new Message();
+        mHandler.sendMessage(message);
+
         int position = mMainActivity.getmMediaService().getmMediaPosition();
         //Update Song Name, Artist Name, Play Button
         mCurrentSongNameTextView.setText(mListSongAdapter.get(position).getmTitle());

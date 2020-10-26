@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unbindService(mServiceConnection);
-        Toast.makeText(mMediaService, "UnBind to Service", Toast.LENGTH_SHORT).show();
+        stopService(new Intent(getApplicationContext(), MediaPlaybackService.class));
     }
 
     public MediaPlaybackService getmMediaService() {

@@ -59,6 +59,7 @@ public class MediaPlaybackService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Toast.makeText(this, "Destroy Service", Toast.LENGTH_SHORT).show();
+        mMediaPlayer.release();
     }
 
     //Tra ve 1 doi tuong MediaPlaybackService
@@ -77,7 +78,12 @@ public class MediaPlaybackService extends Service {
                 || mMediaStatus == MediaStatus.REPEAT_AND_SHUFFLE) {
             nextByShuffleWithButton();
         } else if(mMediaStatus == MediaStatus.NONE){
-            /*Don't continue play*/
+            if(mMediaPosition == mListAllSong.size() - 1){
+                /*Don't continue play*/
+                mMediaPlayer.pause();
+            } else {
+                playMedia(mMediaPosition + 1);
+            }
         } else if(mMediaStatus == MediaStatus.REPEAT_ONE
                 || mMediaStatus == MediaStatus.REPEAT_ONE_AND_SHUFFLE){
             repeatMedia();
@@ -121,10 +127,22 @@ public class MediaPlaybackService extends Service {
         try {
             stopMedia();
             mMediaPlayer = new MediaPlayer();
+//            mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//                @Override
+//                public void onCompletion(MediaPlayer mp) {
+//                    autoNextMedia();
+//                }
+//            });
             mMediaPlayer.setDataSource(mListAllSong.get(position).getmPath());
             mMediaPlayer.prepare();
             mMediaPlayer.start();
             mMediaPosition = position;
+            mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    autoNextMedia();
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -169,7 +187,7 @@ public class MediaPlaybackService extends Service {
 
     private int randomPosition() {
         Random random = new Random();
-        return random.nextInt(mListAllSong.size() - 1);
+        return random.nextInt(mListAllSong.size());
     }
 
     public MediaPlayer getmMediaPlayer() {

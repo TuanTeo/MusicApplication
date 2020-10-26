@@ -1,6 +1,9 @@
 package com.bkav.musicapplication.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -25,6 +28,7 @@ import com.bkav.musicapplication.Song.Song;
 import com.bkav.musicapplication.contentprovider.SongProvider;
 import com.bkav.musicapplication.service.MediaPlaybackService;
 
+import java.io.FileNotFoundException;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,6 +38,9 @@ import java.util.ArrayList;
  */
 public class MediaPlaybackFragment extends Fragment
         implements SeekBar.OnSeekBarChangeListener, MainActivity.IBindService {
+
+    public static final String REPEAT_STATUS = "Repeat_status";
+    public static final String SHUFFLE_STATUS = "Shuffle status";
 
     //Conponents of Fragment
     private RelativeLayout mMediaFragmentRelativeLayout;
@@ -62,7 +69,7 @@ public class MediaPlaybackFragment extends Fragment
     private ArrayList<Song> mListAllSong;
 
     //Check to repeat
-    private boolean mIsRepeat = false;
+    private int mIsRepeat = 0;  // 0:NONE    -   1:REPEAT    -   2:REPEAT_ONE
     //Check to shuffle
     private boolean mIsShuffle = false;
 
@@ -70,11 +77,13 @@ public class MediaPlaybackFragment extends Fragment
     MediaStatus mMediaStatus = MediaStatus.NONE;
 
     //SimpleDateFormat to format song time
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");;
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+    ;
 
     //TODO:Handler object to do update current play time - is a thread, send message each delay time
-    private Handler mHandler = new Handler()
-    {
+    private Handler mHandler = new Handler() {
+        private int songPosition = -1;
+
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
@@ -82,23 +91,37 @@ public class MediaPlaybackFragment extends Fragment
 //            position += 1000;
 //            mSongSeekBar.setProgress(position);
 
-            //Update Current time to TextView
-            mCurrentTimeTextView.setText(
-                    simpleDateFormat.format(
-                            mMediaPlaybackService.getmMediaPlayer().getCurrentPosition()));
-            //Update Current Progress to SeekBar
-            mSongSeekBar.setProgress(
-                    mMediaPlaybackService.getmMediaPlayer().getCurrentPosition());
-            //Auto next Song
-            if(mMediaPlaybackService.getmMediaPlayer().getCurrentPosition() >=
-                    (mMediaPlaybackService.getmMediaPlayer().getDuration())){
-                mMediaPlaybackService.autoNextMedia();
-                upDateInfoView();
-            }
+//            Log.d("TAG2", "handleMessage: " + msg.what);
+//            switch (msg.what) {
+//                case 0:
+//                    removeMessages(0);
+//                    break;
+//                default: {
+                    //Update Current time to TextView
+                    mCurrentTimeTextView.setText(
+                            simpleDateFormat.format(
+                                    mMediaPlaybackService.getmMediaPlayer().getCurrentPosition()));
+                    //Update Current Progress to SeekBar
+                    mSongSeekBar.setProgress(
+                            mMediaPlaybackService.getmMediaPlayer().getCurrentPosition());
+//Auto next Song
+//            mMediaPlaybackService.getmMediaPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//                @Override
+//                public void onCompletion(MediaPlayer mp) { //Set xu kien khi 1 bai hat ket thuc
+//                    mMediaPlaybackService.autoNextMedia();
+//                    upDateInfoView();
+//                }
+//            });
+                    //Update View when next Song
+                    if (songPosition != -1 && songPosition != mMediaPlaybackService.getmMediaPosition()) {
+                        upDateInfoView();
+                    }
+                    Message message = new Message();
+//                  message.arg1 = position;
+                    sendMessageDelayed(message, 500);
+//                }
+//            }
 
-            Message message = new Message();
-//            message.arg1 = position;
-            sendMessageDelayed(message, 500);
         }
     };
 
@@ -113,7 +136,7 @@ public class MediaPlaybackFragment extends Fragment
 
         //Get MediaPlaybackActivity object
         mMediaPlaybackActivity = ((MediaPlaybackActivity) getActivity());
-        mMediaPlaybackActivity.setBindServiceListener(this);
+//        mMediaPlaybackActivity.setBindServiceListener(this);
         mMediaPlaybackService = mMediaPlaybackActivity.getmMediaService();
 
         //initial components view
@@ -124,6 +147,15 @@ public class MediaPlaybackFragment extends Fragment
         upDateInfoView();
         //Return Fragment view
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences =
+                mMediaPlaybackActivity
+                        .getSharedPreferences("Repeat_and_Shuffle_status",Context.MODE_PRIVATE);
+        //TODO: get status for repeat and shuffle button
     }
 
     private void setOnClick() {
@@ -142,21 +174,27 @@ public class MediaPlaybackFragment extends Fragment
                 if (mMediaStatus == MediaStatus.NONE) {     /*is NONE => REPEAT_ALL*/
                     mMediaStatus = MediaStatus.REPEAT_ALL;
                     mRepeatImageButton.setImageResource(R.drawable.ic_repeat_dark_selected);
+                    mIsRepeat = 1;
                 } else if (mMediaStatus == MediaStatus.SHUFFLE) {  /*is SHUFFLE  => REPEAT_AND_SHUFFLE*/
                     mMediaStatus = MediaStatus.REPEAT_AND_SHUFFLE;
                     mRepeatImageButton.setImageResource(R.drawable.ic_repeat_dark_selected);
-                } else if (mMediaStatus == MediaStatus.REPEAT_ALL){  /*is REPEAT_ALL or REPEAT_AND_SHUFFLE => REPEAT_ONE*/
+                    mIsRepeat = 1;
+                } else if (mMediaStatus == MediaStatus.REPEAT_ALL) {  /*is REPEAT_ALL or REPEAT_AND_SHUFFLE => REPEAT_ONE*/
                     mMediaStatus = mMediaStatus.REPEAT_ONE;
                     mRepeatImageButton.setImageResource(R.drawable.ic_repeat_one_song_dark);
+                    mIsRepeat = 2;
                 } else if (mMediaStatus == MediaStatus.REPEAT_AND_SHUFFLE) {
                     mMediaStatus = mMediaStatus.REPEAT_ONE_AND_SHUFFLE;
                     mRepeatImageButton.setImageResource(R.drawable.ic_repeat_one_song_dark);
-                }else if (mMediaStatus == MediaStatus.REPEAT_ONE) {  /*is REPEAT_ONE => SHUFFLE or NONE*/
+                    mIsRepeat = 2;
+                } else if (mMediaStatus == MediaStatus.REPEAT_ONE) {  /*is REPEAT_ONE => SHUFFLE or NONE*/
                     mMediaStatus = MediaStatus.NONE;
                     mRepeatImageButton.setImageResource(R.drawable.ic_repeat_white);
+                    mIsRepeat = 0;
                 } else if (mMediaStatus == MediaStatus.REPEAT_ONE_AND_SHUFFLE) {
                     mMediaStatus = MediaStatus.SHUFFLE;
                     mRepeatImageButton.setImageResource(R.drawable.ic_repeat_white);
+                    mIsRepeat = 0;
                 }
                 mMediaPlaybackService.setmMediaStatus(mMediaStatus);
                 Toast.makeText(mMediaPlaybackActivity, mMediaStatus + "", Toast.LENGTH_SHORT).show();
@@ -248,14 +286,14 @@ public class MediaPlaybackFragment extends Fragment
         if (mMediaPlaybackService.getmMediaPlayer().isPlaying()) {
             //TODO: what is Message? and what do it do?
             Message message = new Message();
-            message.arg1 = mMediaPlaybackService.getmMediaPlayer().getCurrentPosition();
+//            message.arg1 = mMediaPlaybackService.getmMediaPlayer().getCurrentPosition();
             mHandler.sendMessage(message);
         }
 
         if (mMediaPlaybackService != null) {
-            if(mMediaPlaybackService.getmMediaPlayer().isPlaying()){
+            if (mMediaPlaybackService.getmMediaPlayer().isPlaying()) {
                 mPlayImageButton.setImageResource(R.drawable.ic_media_pause_light);
-            } else{
+            } else {
                 mPlayImageButton.setImageResource(R.drawable.ic_media_play_light);
             }
 
@@ -306,26 +344,22 @@ public class MediaPlaybackFragment extends Fragment
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        Log.d("MediaPlaybackFragment", "onProgressChanged: ");
-
     }
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
-        Log.d("MediaPlaybackFragment", "onStartTrackingTouch: ");
     }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
         mMediaPlaybackService.getmMediaPlayer().seekTo(mSongSeekBar.getProgress());
-        Log.d("MediaPlaybackFragment", "onStopTrackingTouch: ");
     }
 
     /**
      * Update CurrentTime for SeekBar
      * (Copy: KhoaPham)
      */
-    private void upDateTimeSong(){
+    private void upDateTimeSong() {
 //        mHandler.postDelayed(new Runnable() {
 //            @Override
 //            public void run() {
@@ -361,5 +395,39 @@ public class MediaPlaybackFragment extends Fragment
 //            message.arg1 = mMediaPlaybackService.getmMediaPlayer().getCurrentPosition();
 //            mHandler.sendMessage(message);
 //        }
+    }
+
+    private void getMediaStatus(){
+        if(!mIsShuffle && mIsRepeat == 0){
+            mMediaStatus = MediaStatus.NONE;
+        } else if (!mIsShuffle && mIsRepeat == 1){
+            mMediaStatus = MediaStatus.REPEAT_ALL;
+        } else if (!mIsShuffle && mIsRepeat == 2){
+            mMediaStatus = MediaStatus.REPEAT_ONE;
+        } else if (mIsShuffle && mIsRepeat == 0){
+            mMediaStatus = MediaStatus.SHUFFLE;
+        } else if (mIsShuffle && mIsRepeat == 1){
+            mMediaStatus = MediaStatus.REPEAT_AND_SHUFFLE;
+        } else if (mIsShuffle && mIsRepeat == 2){
+            mMediaStatus = MediaStatus.REPEAT_ONE_AND_SHUFFLE;
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        SharedPreferences sharedPreferences =
+                mMediaPlaybackActivity.getSharedPreferences(
+                        "Repeat_and_Shuffle_status", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(SHUFFLE_STATUS, mIsShuffle);
+        editor.putInt(REPEAT_STATUS, mIsRepeat);
+        editor.commit();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+//        mHandler.sendEmptyMessage(0);
     }
 }
