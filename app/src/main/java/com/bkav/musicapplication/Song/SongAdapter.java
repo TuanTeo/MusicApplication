@@ -147,6 +147,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 mLastItemPositionInt = getAdapterPosition();
                 notifyDataSetChanged();
             }
+            //TODO: Hien thi thong bao
         }
     }
 }

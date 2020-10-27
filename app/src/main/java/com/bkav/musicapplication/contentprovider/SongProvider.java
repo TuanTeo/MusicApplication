@@ -36,6 +36,7 @@ public class SongProvider {
         return instance;
     }
 
+    //Item position
     private static final int TITLE = 0;
     private static final int TRACK = 1;
     private static final int YEAR = 2;

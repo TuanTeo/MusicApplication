@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bkav.musicapplication.R;
 import com.bkav.musicapplication.Song.Song;
 import com.bkav.musicapplication.Song.SongAdapter;
-import com.bkav.musicapplication.broadcast.ServiceBroadcast;
 import com.bkav.musicapplication.contentprovider.SongProvider;
 
 import java.util.ArrayList;

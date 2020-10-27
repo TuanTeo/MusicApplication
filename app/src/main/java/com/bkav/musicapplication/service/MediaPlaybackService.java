@@ -9,9 +9,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import com.bkav.musicapplication.MediaStatus;
+import com.bkav.musicapplication.Enum.MediaStatus;
 import com.bkav.musicapplication.Song.Song;
-import com.bkav.musicapplication.broadcast.ServiceBroadcast;
 import com.bkav.musicapplication.contentprovider.SongProvider;
 
 import java.io.IOException;
@@ -25,12 +24,9 @@ import java.util.Random;
  */
 public class MediaPlaybackService extends Service {
 
-    public static final String PLAY_MEDIA = "PlayMedia"; //Key for Broadcast to play media
-
     private int mMediaPosition = -1;
     private MediaStatus mMediaStatus = MediaStatus.NONE;
     private IBinder mIBinder = new BoundService();
-    private ServiceBroadcast mStartServiceBroadcast;
     private MediaPlayer mMediaPlayer;
     private ArrayList<Song> mListAllSong = SongProvider.getInstanceNotCreate().getmListSong();
 
@@ -174,6 +170,9 @@ public class MediaPlaybackService extends Service {
     //Play with shuffle Status
     public void nextByShuffleWithButton() {
         int position = randomPosition();
+        if(position == mMediaPosition){
+            position = randomPosition();
+        }
         playMedia(position);
     }
 

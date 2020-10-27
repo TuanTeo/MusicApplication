@@ -1,13 +1,10 @@
 package com.bkav.musicapplication.activity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,14 +19,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.bkav.musicapplication.MediaStatus;
+import com.bkav.musicapplication.Enum.MediaStatus;
 import com.bkav.musicapplication.R;
 import com.bkav.musicapplication.Song.Song;
 import com.bkav.musicapplication.contentprovider.SongProvider;
 import com.bkav.musicapplication.service.MediaPlaybackService;
 
-import java.io.FileNotFoundException;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -113,8 +108,9 @@ public class MediaPlaybackFragment extends Fragment
 //                }
 //            });
                     //Update View when next Song
-                    if (songPosition != -1 && songPosition != mMediaPlaybackService.getmMediaPosition()) {
+                    if (songPosition != mMediaPlaybackService.getmMediaPosition()) {
                         upDateInfoView();
+                        songPosition = mMediaPlaybackService.getmMediaPosition();
                     }
                     Message message = new Message();
 //                  message.arg1 = position;
@@ -156,8 +152,26 @@ public class MediaPlaybackFragment extends Fragment
                 mMediaPlaybackActivity
                         .getSharedPreferences("Repeat_and_Shuffle_status",Context.MODE_PRIVATE);
         //TODO: get status for repeat and shuffle button
+        int repeatStatus = sharedPreferences.getInt(REPEAT_STATUS, 0);
+        boolean shuffleStatus = sharedPreferences.getBoolean(SHUFFLE_STATUS, false);
+        if(repeatStatus == 1){
+            mRepeatImageButton.setImageResource(R.drawable.ic_repeat_dark_selected);
+        } else if (repeatStatus == 2){
+            mRepeatImageButton.setImageResource(R.drawable.ic_repeat_one_song_dark);
+        } else {
+            mRepeatImageButton.setImageResource(R.drawable.ic_repeat_white);
+        }
+        if(shuffleStatus){
+            mShuffleImageButton.setImageResource(R.drawable.ic_play_shuffle_orange_noshadow);
+        } else {
+            mShuffleImageButton.setImageResource(R.drawable.ic_shuffle_white);
+        }
+        mMediaPlaybackService.setmMediaStatus(getMediaStatus());
     }
 
+    /**
+     * Set onClick for ImageButton in MediaFragment
+     */
     private void setOnClick() {
         /*Set onClick for backToAllSongImageButton*/
         mBackToAllSongImageButton.setOnClickListener(new View.OnClickListener() {
@@ -171,32 +185,44 @@ public class MediaPlaybackFragment extends Fragment
         mRepeatImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mMediaStatus == MediaStatus.NONE) {     /*is NONE => REPEAT_ALL*/
-                    mMediaStatus = MediaStatus.REPEAT_ALL;
-                    mRepeatImageButton.setImageResource(R.drawable.ic_repeat_dark_selected);
+//                if (mMediaStatus == MediaStatus.NONE) {     /*is NONE => REPEAT_ALL*/
+//                    mMediaStatus = MediaStatus.REPEAT_ALL;
+//                    mRepeatImageButton.setImageResource(R.drawable.ic_repeat_dark_selected);
+//                    mIsRepeat = 1;
+//                } else if (mMediaStatus == MediaStatus.SHUFFLE) {  /*is SHUFFLE  => REPEAT_AND_SHUFFLE*/
+//                    mMediaStatus = MediaStatus.REPEAT_AND_SHUFFLE;
+//                    mRepeatImageButton.setImageResource(R.drawable.ic_repeat_dark_selected);
+//                    mIsRepeat = 1;
+//                } else if (mMediaStatus == MediaStatus.REPEAT_ALL) {  /*is REPEAT_ALL or REPEAT_AND_SHUFFLE => REPEAT_ONE*/
+//                    mMediaStatus = mMediaStatus.REPEAT_ONE;
+//                    mRepeatImageButton.setImageResource(R.drawable.ic_repeat_one_song_dark);
+//                    mIsRepeat = 2;
+//                } else if (mMediaStatus == MediaStatus.REPEAT_AND_SHUFFLE) {
+//                    mMediaStatus = mMediaStatus.REPEAT_ONE_AND_SHUFFLE;
+//                    mRepeatImageButton.setImageResource(R.drawable.ic_repeat_one_song_dark);
+//                    mIsRepeat = 2;
+//                } else if (mMediaStatus == MediaStatus.REPEAT_ONE) {  /*is REPEAT_ONE => SHUFFLE or NONE*/
+//                    mMediaStatus = MediaStatus.NONE;
+//                    mRepeatImageButton.setImageResource(R.drawable.ic_repeat_white);
+//                    mIsRepeat = 0;
+//                } else if (mMediaStatus == MediaStatus.REPEAT_ONE_AND_SHUFFLE) {
+//                    mMediaStatus = MediaStatus.SHUFFLE;
+//                    mRepeatImageButton.setImageResource(R.drawable.ic_repeat_white);
+//                    mIsRepeat = 0;
+//                }
+
+                //Recode
+                if(mIsRepeat == 0){
                     mIsRepeat = 1;
-                } else if (mMediaStatus == MediaStatus.SHUFFLE) {  /*is SHUFFLE  => REPEAT_AND_SHUFFLE*/
-                    mMediaStatus = MediaStatus.REPEAT_AND_SHUFFLE;
                     mRepeatImageButton.setImageResource(R.drawable.ic_repeat_dark_selected);
-                    mIsRepeat = 1;
-                } else if (mMediaStatus == MediaStatus.REPEAT_ALL) {  /*is REPEAT_ALL or REPEAT_AND_SHUFFLE => REPEAT_ONE*/
-                    mMediaStatus = mMediaStatus.REPEAT_ONE;
-                    mRepeatImageButton.setImageResource(R.drawable.ic_repeat_one_song_dark);
+                } else if (mIsRepeat == 1){
                     mIsRepeat = 2;
-                } else if (mMediaStatus == MediaStatus.REPEAT_AND_SHUFFLE) {
-                    mMediaStatus = mMediaStatus.REPEAT_ONE_AND_SHUFFLE;
                     mRepeatImageButton.setImageResource(R.drawable.ic_repeat_one_song_dark);
-                    mIsRepeat = 2;
-                } else if (mMediaStatus == MediaStatus.REPEAT_ONE) {  /*is REPEAT_ONE => SHUFFLE or NONE*/
-                    mMediaStatus = MediaStatus.NONE;
-                    mRepeatImageButton.setImageResource(R.drawable.ic_repeat_white);
+                } else {
                     mIsRepeat = 0;
-                } else if (mMediaStatus == MediaStatus.REPEAT_ONE_AND_SHUFFLE) {
-                    mMediaStatus = MediaStatus.SHUFFLE;
                     mRepeatImageButton.setImageResource(R.drawable.ic_repeat_white);
-                    mIsRepeat = 0;
                 }
-                mMediaPlaybackService.setmMediaStatus(mMediaStatus);
+                mMediaPlaybackService.setmMediaStatus(getMediaStatus());
                 Toast.makeText(mMediaPlaybackActivity, mMediaStatus + "", Toast.LENGTH_SHORT).show();
             }
         });
@@ -205,32 +231,40 @@ public class MediaPlaybackFragment extends Fragment
         mShuffleImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mMediaStatus == MediaStatus.NONE) { /*is NONE => SHUFFLE*/
-                    mMediaStatus = MediaStatus.SHUFFLE;
-                    mShuffleImageButton.setImageResource(R.drawable.ic_play_shuffle_orange_noshadow);
+//                if (mMediaStatus == MediaStatus.NONE) { /*is NONE => SHUFFLE*/
+//                    mMediaStatus = MediaStatus.SHUFFLE;
+//                    mShuffleImageButton.setImageResource(R.drawable.ic_play_shuffle_orange_noshadow);
+//                    mIsShuffle = true;
+//                } else if (mMediaStatus == MediaStatus.SHUFFLE) { /*is SHUFFLE => NONE*/
+//                    mMediaStatus = MediaStatus.NONE;
+//                    mShuffleImageButton.setImageResource(R.drawable.ic_shuffle_white);
+//                    mIsShuffle = false;
+//                } else if (mMediaStatus == MediaStatus.REPEAT_AND_SHUFFLE) { /*is REPEAT_AND_SHUFFLE => REPEAT*/
+//                    mMediaStatus = MediaStatus.REPEAT_ALL;
+//                    mShuffleImageButton.setImageResource(R.drawable.ic_shuffle_white);
+//                    mIsShuffle = false;
+//                } else if (mMediaStatus == MediaStatus.REPEAT_ALL) { /*is REPEAT_ALL => REPEAT_AND_SHUFFLE*/
+//                    mMediaStatus = MediaStatus.REPEAT_AND_SHUFFLE;
+//                    mShuffleImageButton.setImageResource(R.drawable.ic_play_shuffle_orange_noshadow);
+//                    mIsShuffle = true;
+//                } else if (mMediaStatus == MediaStatus.REPEAT_ONE) { /*is REPEAT_ONE => REPEAT_REPEAT_ONE*/
+//                    mMediaStatus = MediaStatus.REPEAT_ONE_AND_SHUFFLE;
+//                    mShuffleImageButton.setImageResource(R.drawable.ic_play_shuffle_orange_noshadow);
+//                    mIsShuffle = true;
+//                } else if (mMediaStatus == MediaStatus.REPEAT_ONE_AND_SHUFFLE) {
+//                    mMediaStatus = MediaStatus.REPEAT_ONE;
+//                    mShuffleImageButton.setImageResource(R.drawable.ic_shuffle_white);
+//                    mIsShuffle = false;
+//                }
+                //Recode
+                if(!mIsShuffle){
                     mIsShuffle = true;
-                } else if (mMediaStatus == MediaStatus.SHUFFLE) { /*is SHUFFLE => NONE*/
-                    mMediaStatus = MediaStatus.NONE;
-                    mShuffleImageButton.setImageResource(R.drawable.ic_shuffle_white);
-                    mIsShuffle = false;
-                } else if (mMediaStatus == MediaStatus.REPEAT_AND_SHUFFLE) { /*is REPEAT_AND_SHUFFLE => REPEAT*/
-                    mMediaStatus = MediaStatus.REPEAT_ALL;
-                    mShuffleImageButton.setImageResource(R.drawable.ic_shuffle_white);
-                    mIsShuffle = false;
-                } else if (mMediaStatus == MediaStatus.REPEAT_ALL) { /*is REPEAT_ALL => REPEAT_AND_SHUFFLE*/
-                    mMediaStatus = MediaStatus.REPEAT_AND_SHUFFLE;
                     mShuffleImageButton.setImageResource(R.drawable.ic_play_shuffle_orange_noshadow);
-                    mIsShuffle = true;
-                } else if (mMediaStatus == MediaStatus.REPEAT_ONE) { /*is REPEAT_ONE => REPEAT_REPEAT_ONE*/
-                    mMediaStatus = MediaStatus.REPEAT_ONE_AND_SHUFFLE;
-                    mShuffleImageButton.setImageResource(R.drawable.ic_play_shuffle_orange_noshadow);
-                    mIsShuffle = true;
-                } else if (mMediaStatus == MediaStatus.REPEAT_ONE_AND_SHUFFLE) {
-                    mMediaStatus = MediaStatus.REPEAT_ONE;
-                    mShuffleImageButton.setImageResource(R.drawable.ic_shuffle_white);
+                } else {
                     mIsShuffle = false;
+                    mShuffleImageButton.setImageResource(R.drawable.ic_shuffle_white);
                 }
-                mMediaPlaybackService.setmMediaStatus(mMediaStatus);
+                mMediaPlaybackService.setmMediaStatus(getMediaStatus());
                 Toast.makeText(mMediaPlaybackActivity, mMediaStatus + "", Toast.LENGTH_SHORT).show();
             }
         });
@@ -241,10 +275,10 @@ public class MediaPlaybackFragment extends Fragment
             public void onClick(View v) {
                 if (mMediaPlaybackService.getmMediaPlayer().isPlaying()) {
                     mMediaPlaybackService.pauseMedia();
-                    mPlayImageButton.setImageResource(R.drawable.ic_media_play_light);
+                    mPlayImageButton.setImageResource(R.mipmap.ic_media_play_light);
                 } else {
                     mMediaPlaybackService.resumeMedia();
-                    mPlayImageButton.setImageResource(R.drawable.ic_media_pause_light);
+                    mPlayImageButton.setImageResource(R.mipmap.ic_media_pause_light);
                 }
             }
         });
@@ -254,7 +288,7 @@ public class MediaPlaybackFragment extends Fragment
             @Override
             public void onClick(View v) {
                 mMediaPlaybackService.nextMedia();
-                mPlayImageButton.setImageResource(R.drawable.ic_media_pause_light);
+                mPlayImageButton.setImageResource(R.mipmap.ic_media_pause_light);
                 upDateInfoView();
 
             }
@@ -273,12 +307,15 @@ public class MediaPlaybackFragment extends Fragment
                     mMediaPlaybackService
                             .playMedia((mMediaPlaybackService.getmMediaPosition() - 1));
                 }
-                mPlayImageButton.setImageResource(R.drawable.ic_media_pause_light);
+                mPlayImageButton.setImageResource(R.mipmap.ic_media_pause_light);
                 upDateInfoView();
             }
         });
     }
 
+    /**
+     * Update View by SongPosition
+     */
     private void upDateInfoView() {
         //upDateTimeSong();
         //// TODO: 10/24/20 thanhnch se xem van de khong goi duoc interface trong onbind sevice
@@ -292,9 +329,9 @@ public class MediaPlaybackFragment extends Fragment
 
         if (mMediaPlaybackService != null) {
             if (mMediaPlaybackService.getmMediaPlayer().isPlaying()) {
-                mPlayImageButton.setImageResource(R.drawable.ic_media_pause_light);
+                mPlayImageButton.setImageResource(R.mipmap.ic_media_pause_light);
             } else {
-                mPlayImageButton.setImageResource(R.drawable.ic_media_play_light);
+                mPlayImageButton.setImageResource(R.mipmap.ic_media_play_light);
             }
 
             //Get song position
@@ -319,6 +356,10 @@ public class MediaPlaybackFragment extends Fragment
         }
     }
 
+    /**
+     * Initial FindViewbyID
+     * @param view
+     */
     private void initialView(View view) {
         //Work with SeekBar
         mSongSeekBar = view.findViewById(R.id.seek_bar_play_song);
@@ -342,14 +383,28 @@ public class MediaPlaybackFragment extends Fragment
         mPlayImageButton = view.findViewById(R.id.media_play_button);
     }
 
+    /**
+     * SeekBar Progress
+     * @param seekBar
+     * @param progress
+     * @param fromUser
+     */
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
     }
 
+    /**
+     * Start Change progress of SeekBar
+     * @param seekBar
+     */
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
     }
 
+    /**
+     * Stop change Progress of SeekBar
+     * @param seekBar
+     */
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
         mMediaPlaybackService.getmMediaPlayer().seekTo(mSongSeekBar.getProgress());
@@ -385,7 +440,7 @@ public class MediaPlaybackFragment extends Fragment
     }
 
     /**
-     *
+     * ???
      */
     @Override
     public void onBind() {
@@ -397,7 +452,7 @@ public class MediaPlaybackFragment extends Fragment
 //        }
     }
 
-    private void getMediaStatus(){
+    private MediaStatus getMediaStatus(){
         if(!mIsShuffle && mIsRepeat == 0){
             mMediaStatus = MediaStatus.NONE;
         } else if (!mIsShuffle && mIsRepeat == 1){
@@ -411,6 +466,7 @@ public class MediaPlaybackFragment extends Fragment
         } else if (mIsShuffle && mIsRepeat == 2){
             mMediaStatus = MediaStatus.REPEAT_ONE_AND_SHUFFLE;
         }
+        return mMediaStatus;
     }
 
     @Override
@@ -425,9 +481,4 @@ public class MediaPlaybackFragment extends Fragment
         editor.commit();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-//        mHandler.sendEmptyMessage(0);
-    }
 }
