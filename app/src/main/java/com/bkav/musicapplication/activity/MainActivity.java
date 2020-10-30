@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.bkav.musicapplication.R;
 import com.bkav.musicapplication.contentprovider.SongProvider;
 import com.bkav.musicapplication.service.MediaPlaybackService;
+import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,8 +32,9 @@ public class MainActivity extends AppCompatActivity {
 
     private AllSongFragment mAllSongFragment;
     private MediaPlaybackFragment mMediaPlaybackFragment;
+    private FavoriteSongFragment mFavoriteSongFragment;
     private MediaPlaybackService mMediaService;
-
+    private NavigationView mNavigationView;
     private ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
             //Tao doi tuong service
             MediaPlaybackService.BoundService bind = (MediaPlaybackService.BoundService) service;
             mMediaService = bind.getService(); //Get instance of service
+            onStart();
             Toast.makeText(mMediaService, "onServiceConnected: MainActivity", Toast.LENGTH_SHORT).show();
         }
 
@@ -59,16 +62,36 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(
                 (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar_main));
 
+        //NavigationView
+        mNavigationView = findViewById(R.id.navigation_view);
+        mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.nav_listen_now:
+                        //TODO: Close navigation page
+                        break;
+                    case R.id.nav_music_library:
+                        showAllSongFragment(R.id.container);
+                        break;
+                    case R.id.nav_recents:
+                        showFavoriteSongFragment(R.id.container);
+                }
+
+                return false;
+            }
+        });
         //Permission READ_EXTERNAL_STORAGE
         if (isReadStoragePermissionGranted()) {
             SongProvider.getInstance(this);
         }
 
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
 //            mAllSongFragment = (AllSongFragment) savedInstanceState.getInt(ALL_SONG_FRAGMENT_ID);
         } else {
             mAllSongFragment = new AllSongFragment();
             mMediaPlaybackFragment = new MediaPlaybackFragment();
+            mFavoriteSongFragment = new FavoriteSongFragment();
         }
         //Bind to service
         bindMediaService();
@@ -114,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
      * Create view on the First time
      */
     public void createMainView() {
+        //Check Screen orientaion
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             showAllSongFragment(R.id.container);
         } else {
@@ -146,8 +170,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Show Favorite Song Fragment
+     * @param container
+     */
+    private void showFavoriteSongFragment(int container) {
+        getSupportFragmentManager().beginTransaction()
+                .addToBackStack(null)
+                .replace(container, mFavoriteSongFragment)
+                .commit();
+    }
+
+    /**
      * Check read storage permission granted
-     *
      * @return
      */
     private boolean isReadStoragePermissionGranted() {

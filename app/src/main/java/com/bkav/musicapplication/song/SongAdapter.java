@@ -138,7 +138,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 //UpDate data on View
                 notifyDataSetChanged();
                 //play Media
-                mainActivity.getmMediaService().playMedia(getAdapterPosition());
+                mainActivity.getmMediaService().playMedia(mLastItemPositionInt);
 
                 //Add Current Song to Database
 //                addSongToDataBase(mainActivity.getmMediaService().getmMediaPosition());

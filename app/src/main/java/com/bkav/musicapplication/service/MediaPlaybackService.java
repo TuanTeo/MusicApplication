@@ -71,7 +71,9 @@ public class MediaPlaybackService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Toast.makeText(this, "Destroy Service", Toast.LENGTH_SHORT).show();
-        mMediaPlayer.release();
+        if(mMediaPlayer != null){
+            mMediaPlayer.release();
+        }
     }
 
     //Tra ve 1 doi tuong MediaPlaybackService
@@ -136,13 +138,13 @@ public class MediaPlaybackService extends Service {
     }
 
     public void playMedia(int position) {
+        mMediaPosition = position;
         try {
             stopMedia();
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setDataSource(mListAllSong.get(position).getmPath());
             mMediaPlayer.prepare();
             mMediaPlayer.start();
-            mMediaPosition = position;
             mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
