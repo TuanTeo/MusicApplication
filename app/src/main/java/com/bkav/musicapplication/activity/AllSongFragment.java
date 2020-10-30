@@ -1,8 +1,6 @@
 package com.bkav.musicapplication.activity;
 
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -24,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bkav.musicapplication.R;
 import com.bkav.musicapplication.Song.Song;
 import com.bkav.musicapplication.Song.SongAdapter;
+import com.bkav.musicapplication.contentprovider.FavoriteSongProvider;
 import com.bkav.musicapplication.contentprovider.SongProvider;
 
 import java.util.ArrayList;
@@ -34,6 +33,7 @@ import java.util.ArrayList;
  */
 public class AllSongFragment extends Fragment {
 
+    public static final String SMALL_PLAYING_VISIBLE = "small playing visible";
     private MainActivity mMainActivity;
     private RelativeLayout mSmallPlayingAreaRelativeLayout;
     private RelativeLayout mSmallPlayRelativeLayout;   //Relative to display Playing area
@@ -84,9 +84,6 @@ public class AllSongFragment extends Fragment {
         mMainActivity = (MainActivity) getActivity();
         createRecycleView(view);
         initView(view);
-        if(savedInstanceState != null){
-            mSmallPlayRelativeLayout.setVisibility(savedInstanceState.getInt("IS_PLAYING_VISIBLE"));
-        }
         setOnClick();
         return view;
     }
@@ -180,9 +177,4 @@ public class AllSongFragment extends Fragment {
         mRecyclerView.smoothScrollToPosition(position);
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt("IS_PLAYING_VISIBLE", mSmallPlayRelativeLayout.getVisibility());
-    }
 }

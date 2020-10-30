@@ -69,7 +69,8 @@ public class FavoriteSongDataBase extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         //Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS" + TABLE_NOTE);
+        String sqlDropTableQuery = "DROP TABLE IF EXISTS";
+        db.execSQL(sqlDropTableQuery + TABLE_NOTE);
         onCreate(db);
     }
 
@@ -104,7 +105,7 @@ public class FavoriteSongDataBase extends SQLiteOpenHelper {
      * Get list All Favorite Song
      * @return
      */
-    public List<Song> getAllNote() {
+    public List<Song> getAllSong() {
         List<Song> songList = new ArrayList<Song>();
 
         String SQLquery = "Select * From " + TABLE_NOTE;

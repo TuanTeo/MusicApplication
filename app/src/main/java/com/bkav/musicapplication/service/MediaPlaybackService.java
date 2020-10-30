@@ -1,21 +1,32 @@
 package com.bkav.musicapplication.service;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import com.bkav.musicapplication.Enum.MediaStatus;
+import com.bkav.musicapplication.R;
 import com.bkav.musicapplication.Song.Song;
+import com.bkav.musicapplication.activity.MainActivity;
 import com.bkav.musicapplication.contentprovider.SongProvider;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+
+import static androidx.core.app.NotificationCompat.DEFAULT_ALL;
+import static androidx.core.app.NotificationCompat.PRIORITY_MIN;
 
 
 /**
@@ -24,21 +35,25 @@ import java.util.Random;
  */
 public class MediaPlaybackService extends Service {
 
+    private static final String NOTIFI_CHANNEL_ID = "notification_channel";
+    private static final int MEDIA_NOTIFICATION_ID = 0;
+    private NotificationManager mNotificationManager;
+
     private int mMediaPosition = -1;
     private MediaStatus mMediaStatus = MediaStatus.NONE;
-    private IBinder mIBinder = new BoundService();
     private MediaPlayer mMediaPlayer;
     private ArrayList<Song> mListAllSong = SongProvider.getInstanceNotCreate().getmListSong();
 
     @Override
     public void onCreate() {
         super.onCreate();
+        createNotificationChannel();
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return mIBinder;
+        return new BoundService();
     }
 
     @Override
@@ -55,6 +70,7 @@ public class MediaPlaybackService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Toast.makeText(this, "Destroy Service", Toast.LENGTH_SHORT).show();
+        mNotificationManager.cancel(MEDIA_NOTIFICATION_ID);
         mMediaPlayer.release();
     }
 
@@ -123,12 +139,6 @@ public class MediaPlaybackService extends Service {
         try {
             stopMedia();
             mMediaPlayer = new MediaPlayer();
-//            mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-//                @Override
-//                public void onCompletion(MediaPlayer mp) {
-//                    autoNextMedia();
-//                }
-//            });
             mMediaPlayer.setDataSource(mListAllSong.get(position).getmPath());
             mMediaPlayer.prepare();
             mMediaPlayer.start();
@@ -139,6 +149,7 @@ public class MediaPlaybackService extends Service {
                     autoNextMedia();
                 }
             });
+            sendNotification();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -203,5 +214,49 @@ public class MediaPlaybackService extends Service {
 
     public int getmMediaPosition() {
         return mMediaPosition;
+    }
+
+    /**
+     * To create Form of notification
+     */
+    private void createNotificationChannel(){
+        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            NotificationChannel notificationChannel =
+                    new NotificationChannel(NOTIFI_CHANNEL_ID,
+                            "Media_Service",
+                            NotificationManager.IMPORTANCE_DEFAULT);
+            notificationChannel.enableLights(false); //Set mau den thong bao (true)
+            notificationChannel.setLightColor(Color.RED);   //Mau do
+            notificationChannel.enableVibration(false);  //Rung khi thong bao
+            mNotificationManager.createNotificationChannel(notificationChannel);    //Tao kenh thong bao
+        }
+    }
+
+    /**
+     * To manager, build and show notification
+     * @return
+     */
+    private NotificationCompat.Builder getNotificationBuilder(){
+        //Tao event clicked in notification => back to MainActivity
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent notificationPendingIntent = PendingIntent.getActivity(this,
+                MEDIA_NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder notifyBuilder =
+                new NotificationCompat.Builder(this, NOTIFI_CHANNEL_ID)
+                        .setContentTitle(mListAllSong.get(mMediaPosition).getmTitle())  //Set title
+                        .setContentText(mListAllSong.get(mMediaPosition).getmArtistName())  //Set text detail
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setPriority(PRIORITY_MIN)
+                        .setDefaults(DEFAULT_ALL)
+                        .setContentIntent(notificationPendingIntent);    //Set smallIcon (bat buoc)
+
+        return notifyBuilder;
+    }
+
+    private void sendNotification(){
+        NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
+        mNotificationManager.notify(MEDIA_NOTIFICATION_ID, notifyBuilder.build());
     }
 }
