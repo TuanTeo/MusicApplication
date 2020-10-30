@@ -1,9 +1,8 @@
-package com.bkav.musicapplication.Song;
+package com.bkav.musicapplication.song;
 
-import android.content.Context;
-import android.content.Intent;
+import android.content.ContentValues;
 import android.content.res.Configuration;
-import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,14 +10,15 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bkav.musicapplication.R;
-import com.bkav.musicapplication.activity.AllSongFragment;
 import com.bkav.musicapplication.activity.MainActivity;
-import com.bkav.musicapplication.service.MediaPlaybackService;
+import com.bkav.musicapplication.contentprovider.FavoriteSongProvider;
+import com.bkav.musicapplication.favoritesongdatabase.FavoriteSongDataBase;
 
 import java.util.ArrayList;
 
@@ -128,7 +128,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         }
 
         @Override
-        public void onClick(View v) {
+        public synchronized void onClick(View v) {
 
             if (v.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
                 //Show small playing area
@@ -137,17 +137,51 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 mLastItemPositionInt = getAdapterPosition();
                 //UpDate data on View
                 notifyDataSetChanged();
-
                 //play Media
-                mainActivity.getmMediaService().playMedia(mLastItemPositionInt);
-//
+                mainActivity.getmMediaService().playMedia(getAdapterPosition());
+
+                //Add Current Song to Database
+//                addSongToDataBase(mainActivity.getmMediaService().getmMediaPosition());
+
                 //Update UI in AllSongFragment
                 mainActivity.getmAllSongFragment().upDateSmallPlayingRelativeLayout();
             } else {
                 mLastItemPositionInt = getAdapterPosition();
                 notifyDataSetChanged();
             }
-            //TODO: Hien thi thong bao
+        }
+
+        /**
+         * Get Song data put to ContentValues
+         * @param position
+         * @return
+         */
+        private ContentValues getSongData(int position){
+            ContentValues contentValues = new ContentValues();
+
+            contentValues.put(FavoriteSongDataBase.COLUMN_PATH, mListSongAdapter.get(position).getmPath());
+            contentValues.put(FavoriteSongDataBase.COLUMN_TITLE, mListSongAdapter.get(position).getmTitle());
+            contentValues.put(FavoriteSongDataBase.COLUMN_TRACK, mListSongAdapter.get(position).getmTrackNumber());
+            contentValues.put(FavoriteSongDataBase.COLUMN_YEAR, mListSongAdapter.get(position).getmYear());
+            contentValues.put(FavoriteSongDataBase.COLUMN_ALBUM, mListSongAdapter.get(position).getmAlbumName());
+            contentValues.put(FavoriteSongDataBase.COLUMN_ALBUM_ID, mListSongAdapter.get(position).getmAlbumID());
+            contentValues.put(FavoriteSongDataBase.COLUMN_ARTIST, mListSongAdapter.get(position).getmArtistName());
+            contentValues.put(FavoriteSongDataBase.COLUMN_ARTIST_ID, mListSongAdapter.get(position).getmArtistId());
+            contentValues.put(FavoriteSongDataBase.COLUMN_DURATION, mListSongAdapter.get(position).getmDuration());
+
+            return contentValues;
+        }
+
+        /**
+         * Add Song To DataBase
+         * @param position
+         */
+        private void addSongToDataBase(int position){
+            ContentValues values = getSongData(position);
+            Uri uri = mainActivity.getContentResolver().insert(
+                    FavoriteSongProvider.CONTENT_URI, values);
+            Toast.makeText(mainActivity.getBaseContext(),
+                    uri.toString(), Toast.LENGTH_LONG).show();
         }
     }
 }

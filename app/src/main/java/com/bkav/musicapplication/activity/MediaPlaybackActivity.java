@@ -73,6 +73,7 @@ public class MediaPlaybackActivity extends AppCompatActivity {
             getApplicationContext().unbindService(mServiceConnection);
             mIsBindService = false;
         }
+        Toast.makeText(mMediaService, "MediaActivity Destroy!", Toast.LENGTH_SHORT).show();
     }
 
     private void showMediaPlaybackFragment() {

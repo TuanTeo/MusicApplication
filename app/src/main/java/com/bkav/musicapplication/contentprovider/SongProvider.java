@@ -1,15 +1,12 @@
 package com.bkav.musicapplication.contentprovider;
 
-import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.provider.MediaStore;
 
 import androidx.annotation.Nullable;
 
-import com.bkav.musicapplication.Song.Song;
+import com.bkav.musicapplication.song.Song;
 
 import java.util.ArrayList;
 

@@ -3,6 +3,8 @@
     package="com.bkav.musicapplication">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.android.example.checkandroidid.WRITE_DATABASE" />
+    <uses-permission android:name="com.android.example.checkandroidid.READ_DATABASE" />
 
     <application
         android:allowBackup="true"

@@ -17,7 +17,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.bkav.musicapplication.Enum.MediaStatus;
 import com.bkav.musicapplication.R;
-import com.bkav.musicapplication.Song.Song;
+import com.bkav.musicapplication.song.Song;
 import com.bkav.musicapplication.activity.MainActivity;
 import com.bkav.musicapplication.contentprovider.SongProvider;
 
@@ -58,6 +58,7 @@ public class MediaPlaybackService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
+        mNotificationManager.cancel(MEDIA_NOTIFICATION_ID);
         return super.onUnbind(intent);
     }
 
@@ -70,7 +71,6 @@ public class MediaPlaybackService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Toast.makeText(this, "Destroy Service", Toast.LENGTH_SHORT).show();
-        mNotificationManager.cancel(MEDIA_NOTIFICATION_ID);
         mMediaPlayer.release();
     }
 

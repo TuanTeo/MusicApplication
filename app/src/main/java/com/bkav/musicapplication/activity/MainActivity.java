@@ -17,18 +17,13 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.bkav.musicapplication.R;
-import com.bkav.musicapplication.Song.Song;
+import com.bkav.musicapplication.contentprovider.SongProvider;
 import com.bkav.musicapplication.service.MediaPlaybackService;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -65,7 +60,10 @@ public class MainActivity extends AppCompatActivity {
                 (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar_main));
 
         //Permission READ_EXTERNAL_STORAGE
-        isReadStoragePermissionGranted();
+        if (isReadStoragePermissionGranted()) {
+            SongProvider.getInstance(this);
+        }
+
         if(savedInstanceState != null){
 //            mAllSongFragment = (AllSongFragment) savedInstanceState.getInt(ALL_SONG_FRAGMENT_ID);
         } else {
@@ -152,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
      *
      * @return
      */
-    public boolean isReadStoragePermissionGranted() {
+    private boolean isReadStoragePermissionGranted() {
 
         if (ContextCompat.checkSelfPermission(
                 getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
@@ -185,6 +183,27 @@ public class MainActivity extends AppCompatActivity {
 //            return true;
 //        }
     }
+
+//    private boolean isReadDataBasePermissionGranted(){
+//        if (ContextCompat.checkSelfPermission(
+//                getApplicationContext(), Manifest.permission.READ_DATA_BASE) ==
+//                PackageManager.PERMISSION_GRANTED) {
+//            // You can use the API that requires the permission.
+//            return true;
+//        } else if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+//            // In an educational UI, explain to the user why your app requires this
+//            // permission for a specific feature to behave as expected. In this UI,
+//            // include a "cancel" or "no thanks" button that allows the user to
+//            // continue using your app without granting the permission.
+//            showInContextUI();
+//
+//        } else {
+//            // You can directly ask for the permission.
+//            // The registered ActivityResultCallback gets the result of this request.
+//            requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+//        }
+//        return false;
+//    }
 
     private void showInContextUI() {
 //        Toast.makeText(MainActivity.this,
@@ -219,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                 if (isGranted) {
                     // Permission is granted. Continue the action or workflow in your
                     // app.
-
+                    SongProvider.getInstance(this);
                     //Load lai Fragment
                     createMainView();
 
@@ -238,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         unbindService(mServiceConnection);
         stopService(new Intent(getApplicationContext(), MediaPlaybackService.class));
+        Toast.makeText(mMediaService, "MainActity: Destroy!", Toast.LENGTH_SHORT).show();
     }
 
     public MediaPlaybackService getmMediaService() {

@@ -21,7 +21,7 @@ import androidx.fragment.app.Fragment;
 
 import com.bkav.musicapplication.Enum.MediaStatus;
 import com.bkav.musicapplication.R;
-import com.bkav.musicapplication.Song.Song;
+import com.bkav.musicapplication.song.Song;
 import com.bkav.musicapplication.contentprovider.SongProvider;
 import com.bkav.musicapplication.service.MediaPlaybackService;
 
@@ -92,29 +92,21 @@ public class MediaPlaybackFragment extends Fragment
 //                    removeMessages(0);
 //                    break;
 //                default: {
-                    //Update Current time to TextView
-                    mCurrentTimeTextView.setText(
-                            simpleDateFormat.format(
-                                    mMediaPlaybackService.getmMediaPlayer().getCurrentPosition()));
-                    //Update Current Progress to SeekBar
-                    mSongSeekBar.setProgress(
-                            mMediaPlaybackService.getmMediaPlayer().getCurrentPosition());
-//Auto next Song
-//            mMediaPlaybackService.getmMediaPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-//                @Override
-//                public void onCompletion(MediaPlayer mp) { //Set xu kien khi 1 bai hat ket thuc
-//                    mMediaPlaybackService.autoNextMedia();
-//                    upDateInfoView();
-//                }
-//            });
-                    //Update View when next Song
-                    if (songPosition != mMediaPlaybackService.getmMediaPosition()) {
-                        upDateInfoView();
-                        songPosition = mMediaPlaybackService.getmMediaPosition();
-                    }
-                    Message message = new Message();
+            //Update Current time to TextView
+            mCurrentTimeTextView.setText(
+                    simpleDateFormat.format(
+                            mMediaPlaybackService.getmMediaPlayer().getCurrentPosition()));
+            //Update Current Progress to SeekBar
+            mSongSeekBar.setProgress(
+                    mMediaPlaybackService.getmMediaPlayer().getCurrentPosition());
+            //Update View when next Song
+            if (songPosition != mMediaPlaybackService.getmMediaPosition()) {
+                upDateInfoView();
+                songPosition = mMediaPlaybackService.getmMediaPosition();
+            }
+            Message message = new Message();
 //                  message.arg1 = position;
-                    sendMessageDelayed(message, 500);
+            sendMessageDelayed(message, 500);
 //                }
 //            }
 
@@ -150,18 +142,18 @@ public class MediaPlaybackFragment extends Fragment
         super.onResume();
         SharedPreferences sharedPreferences =
                 mMediaPlaybackActivity
-                        .getSharedPreferences("Repeat_and_Shuffle_status",Context.MODE_PRIVATE);
+                        .getSharedPreferences("Repeat_and_Shuffle_status", Context.MODE_PRIVATE);
         //TODO: get status for repeat and shuffle button
         int repeatStatus = sharedPreferences.getInt(REPEAT_STATUS, 0);
         boolean shuffleStatus = sharedPreferences.getBoolean(SHUFFLE_STATUS, false);
-        if(repeatStatus == 1){
+        if (repeatStatus == 1) {
             mRepeatImageButton.setImageResource(R.drawable.ic_repeat_dark_selected);
-        } else if (repeatStatus == 2){
+        } else if (repeatStatus == 2) {
             mRepeatImageButton.setImageResource(R.drawable.ic_repeat_one_song_dark);
         } else {
             mRepeatImageButton.setImageResource(R.drawable.ic_repeat_white);
         }
-        if(shuffleStatus){
+        if (shuffleStatus) {
             mShuffleImageButton.setImageResource(R.drawable.ic_play_shuffle_orange_noshadow);
         } else {
             mShuffleImageButton.setImageResource(R.drawable.ic_shuffle_white);
@@ -212,10 +204,10 @@ public class MediaPlaybackFragment extends Fragment
 //                }
 
                 //Recode
-                if(mIsRepeat == 0){
+                if (mIsRepeat == 0) {
                     mIsRepeat = 1;
                     mRepeatImageButton.setImageResource(R.drawable.ic_repeat_dark_selected);
-                } else if (mIsRepeat == 1){
+                } else if (mIsRepeat == 1) {
                     mIsRepeat = 2;
                     mRepeatImageButton.setImageResource(R.drawable.ic_repeat_one_song_dark);
                 } else {
@@ -257,7 +249,7 @@ public class MediaPlaybackFragment extends Fragment
 //                    mIsShuffle = false;
 //                }
                 //Recode
-                if(!mIsShuffle){
+                if (!mIsShuffle) {
                     mIsShuffle = true;
                     mShuffleImageButton.setImageResource(R.drawable.ic_play_shuffle_orange_noshadow);
                 } else {
@@ -358,6 +350,7 @@ public class MediaPlaybackFragment extends Fragment
 
     /**
      * Initial FindViewbyID
+     *
      * @param view
      */
     private void initialView(View view) {
@@ -385,6 +378,7 @@ public class MediaPlaybackFragment extends Fragment
 
     /**
      * SeekBar Progress
+     *
      * @param seekBar
      * @param progress
      * @param fromUser
@@ -395,6 +389,7 @@ public class MediaPlaybackFragment extends Fragment
 
     /**
      * Start Change progress of SeekBar
+     *
      * @param seekBar
      */
     @Override
@@ -403,6 +398,7 @@ public class MediaPlaybackFragment extends Fragment
 
     /**
      * Stop change Progress of SeekBar
+     *
      * @param seekBar
      */
     @Override
@@ -452,18 +448,18 @@ public class MediaPlaybackFragment extends Fragment
 //        }
     }
 
-    private MediaStatus getMediaStatus(){
-        if(!mIsShuffle && mIsRepeat == 0){
+    private MediaStatus getMediaStatus() {
+        if (!mIsShuffle && mIsRepeat == 0) {
             mMediaStatus = MediaStatus.NONE;
-        } else if (!mIsShuffle && mIsRepeat == 1){
+        } else if (!mIsShuffle && mIsRepeat == 1) {
             mMediaStatus = MediaStatus.REPEAT_ALL;
-        } else if (!mIsShuffle && mIsRepeat == 2){
+        } else if (!mIsShuffle && mIsRepeat == 2) {
             mMediaStatus = MediaStatus.REPEAT_ONE;
-        } else if (mIsShuffle && mIsRepeat == 0){
+        } else if (mIsShuffle && mIsRepeat == 0) {
             mMediaStatus = MediaStatus.SHUFFLE;
-        } else if (mIsShuffle && mIsRepeat == 1){
+        } else if (mIsShuffle && mIsRepeat == 1) {
             mMediaStatus = MediaStatus.REPEAT_AND_SHUFFLE;
-        } else if (mIsShuffle && mIsRepeat == 2){
+        } else if (mIsShuffle && mIsRepeat == 2) {
             mMediaStatus = MediaStatus.REPEAT_ONE_AND_SHUFFLE;
         }
         return mMediaStatus;

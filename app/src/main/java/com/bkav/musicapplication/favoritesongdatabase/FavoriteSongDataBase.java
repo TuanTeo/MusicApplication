@@ -1,14 +1,13 @@
 package com.bkav.musicapplication.favoritesongdatabase;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import androidx.annotation.Nullable;
-
-import com.bkav.musicapplication.Song.Song;
+import com.bkav.musicapplication.song.Song;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,18 +21,18 @@ public class FavoriteSongDataBase extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "Favorite_Song_Manager";
 
     // Table name
-    private static final String TABLE_NOTE = "Favorite_Song";
+    public static final String TABLE_SONG = "Favorite_Song";
 
     //Column of Table
-    private static final String COLUMN_TITLE = "Title";
-    private static final String COLUMN_TRACK = "Track";
-    private static final String COLUMN_YEAR = "Year";
-    private static final String COLUMN_DURATION = "Duration";
-    private static final String COLUMN_PATH = "Path";
-    private static final String COLUMN_ALBUM = "Album";
-    private static final String COLUMN_ARTIST_ID = "Artist_ID";
-    private static final String COLUMN_ARTIST = "Artist";
-    private static final String COLUMN_ALBUM_ID = "Album_ID";
+    public static final String COLUMN_TITLE = "Title";
+    public static final String COLUMN_TRACK = "Track";
+    public static final String COLUMN_YEAR = "Year";
+    public static final String COLUMN_DURATION = "Duration";
+    public static final String COLUMN_PATH = "Path";
+    public static final String COLUMN_ALBUM = "Album";
+    public static final String COLUMN_ARTIST_ID = "Artist_ID";
+    public static final String COLUMN_ARTIST = "Artist";
+    public static final String COLUMN_ALBUM_ID = "Album_ID";
 
     //Item Position
     private static final int PATH = 0;
@@ -46,17 +45,20 @@ public class FavoriteSongDataBase extends SQLiteOpenHelper {
     private static final int ARTIST = 7;
     private static final int ALBUM_ID = 8;
 
+    private ContentResolver mContentResolver;
+
     /**
      * Constructor
      * @param context
      */
     public FavoriteSongDataBase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        mContentResolver = context.getContentResolver();
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String script = "CREATE TABLE " + TABLE_NOTE + "("
+        String script = "CREATE TABLE " + TABLE_SONG + "("
                 + COLUMN_PATH + " TEXT PRIMARY KEY," + COLUMN_TITLE + " TEXT,"
                 + COLUMN_TRACK + " INTEGER, " + COLUMN_YEAR + " INTEGER,"
                 + COLUMN_DURATION + " INTEGER," + COLUMN_ALBUM + " TEXT,"
@@ -70,7 +72,7 @@ public class FavoriteSongDataBase extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         //Drop older table if existed
         String sqlDropTableQuery = "DROP TABLE IF EXISTS";
-        db.execSQL(sqlDropTableQuery + TABLE_NOTE);
+        db.execSQL(sqlDropTableQuery + TABLE_SONG);
         onCreate(db);
     }
 
@@ -93,7 +95,7 @@ public class FavoriteSongDataBase extends SQLiteOpenHelper {
         values.put(COLUMN_ALBUM_ID, song.getmAlbumID());
 
         //Insert Row
-        db.insert(TABLE_NOTE, null, values);
+        db.insert(TABLE_SONG, null, values);
 
 //        //Show table infor to log
 //        db.execSQL("Select * from" + TABLE_NOTE);
@@ -108,7 +110,7 @@ public class FavoriteSongDataBase extends SQLiteOpenHelper {
     public List<Song> getAllSong() {
         List<Song> songList = new ArrayList<Song>();
 
-        String SQLquery = "Select * From " + TABLE_NOTE;
+        String SQLquery = "Select * From " + TABLE_SONG;
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(SQLquery, null);
@@ -143,7 +145,7 @@ public class FavoriteSongDataBase extends SQLiteOpenHelper {
     public void deleteSong(Song song) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_NOTE, COLUMN_PATH + " = ?",
+        db.delete(TABLE_SONG, COLUMN_PATH + " = ?",
                 new String[]{String.valueOf(song.getmPath())});
         db.close();
     }

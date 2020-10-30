@@ -1,12 +1,9 @@
-package com.bkav.musicapplication.Song;
+package com.bkav.musicapplication.song;
 
 import android.content.ContentUris;
-import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
 public class Song {
