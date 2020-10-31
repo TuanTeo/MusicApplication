@@ -20,36 +20,36 @@ import com.bkav.musicapplication.activity.MainActivity;
 import com.bkav.musicapplication.contentprovider.FavoriteSongProvider;
 import com.bkav.musicapplication.favoritesongdatabase.FavoriteSongDataBase;
 
+import java.net.URI;
 import java.util.ArrayList;
 
-public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
-
-    private ArrayList<Song> mListSongAdapter; //Create List of Song
+public class FavoriteSongAdapter extends RecyclerView.Adapter<FavoriteSongAdapter.FavoriteSongViewHolder> {
+    private ArrayList<Song> mListFavoriteSongAdapter; //Create List of Song
     private LayoutInflater mInflater;
     private MainActivity mainActivity;
 
     private int mLastItemPositionInt = -1;  //Vi tri cua phan tu khi clicked
 
-    public SongAdapter(ArrayList<Song> mListSongAdapter, MainActivity context) {
+    public FavoriteSongAdapter(ArrayList<Song> mListSongAdapter, MainActivity context) {
         this.mainActivity = context;
-        this.mListSongAdapter = mListSongAdapter;
+        this.mListFavoriteSongAdapter = mListSongAdapter;
         this.mInflater = LayoutInflater.from(context);
     }
 
     @NonNull
     @Override
-    public SongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public FavoriteSongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.song_list_item, parent, false);
-        return new SongViewHolder(view);
+        return new FavoriteSongViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull FavoriteSongViewHolder holder, int position) {
         if(mainActivity.getmMediaService() != null){
             mLastItemPositionInt = mainActivity.getmMediaService().getmMediaPosition();
             //Set Name song
-            holder.mSongNameItemTextView.setText(mListSongAdapter.get(position).getmTitle());
-            holder.mTotalTimeSongItemTextView.setText(mListSongAdapter.get(position).getmDurationString());
+            holder.mSongNameItemTextView.setText(mListFavoriteSongAdapter.get(position).getmTitle());
+            holder.mTotalTimeSongItemTextView.setText(mListFavoriteSongAdapter.get(position).getmDurationString());
 
             //Set font
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -71,8 +71,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             }
         } else {
             //Set Name song
-            holder.mSongNameItemTextView.setText(mListSongAdapter.get(position).getmTitle());
-            holder.mTotalTimeSongItemTextView.setText(mListSongAdapter.get(position).getmDurationString());
+            holder.mSongNameItemTextView.setText(mListFavoriteSongAdapter.get(position).getmTitle());
+            holder.mTotalTimeSongItemTextView.setText(mListFavoriteSongAdapter.get(position).getmDurationString());
 
             //Set font
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -97,10 +97,10 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     @Override
     public int getItemCount() {
-        return mListSongAdapter.size();
+        return mListFavoriteSongAdapter.size();
     }
 
-    public class SongViewHolder extends RecyclerView.ViewHolder
+    public class FavoriteSongViewHolder extends RecyclerView.ViewHolder
             implements RecyclerView.OnClickListener {
 
         private TextView mSerialSongNumberTextView;
@@ -114,7 +114,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
          *
          * @param itemView
          */
-        public SongViewHolder(@NonNull View itemView) {
+        public FavoriteSongViewHolder(@NonNull View itemView) {
             super(itemView);
             mSerialSongNumberTextView = itemView.findViewById(R.id.serial_item_textview);
             mSongNameItemTextView = itemView.findViewById(R.id.song_name_item_textview);
@@ -126,16 +126,21 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         @Override
         public void onClick(View v) {
-
+            //Theo chieu doc => Show small playing area
             if (v.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
                 //Get position of item
                 mLastItemPositionInt = getAdapterPosition();
 
+                //Reset list song of Service
+                mainActivity.getmMediaService().setListSongService(mListFavoriteSongAdapter);
                 //play Media
                 mainActivity.getmMediaService().playMedia(mLastItemPositionInt);
 
                 //Add Current Song to Database
 //                addSongToDataBase(mainActivity.getmMediaService().getmMediaPosition());
+
+                //Delete Current Song from Database
+                deleteSongFromDataBase(mLastItemPositionInt);
 
                 //UpDate data on View
                 notifyDataSetChanged();
@@ -158,15 +163,15 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         private ContentValues getSongData(int position){
             ContentValues contentValues = new ContentValues();
 
-            contentValues.put(FavoriteSongDataBase.COLUMN_PATH, mListSongAdapter.get(position).getmPath());
-            contentValues.put(FavoriteSongDataBase.COLUMN_TITLE, mListSongAdapter.get(position).getmTitle());
-            contentValues.put(FavoriteSongDataBase.COLUMN_TRACK, mListSongAdapter.get(position).getmTrackNumber());
-            contentValues.put(FavoriteSongDataBase.COLUMN_YEAR, mListSongAdapter.get(position).getmYear());
-            contentValues.put(FavoriteSongDataBase.COLUMN_ALBUM, mListSongAdapter.get(position).getmAlbumName());
-            contentValues.put(FavoriteSongDataBase.COLUMN_ALBUM_ID, mListSongAdapter.get(position).getmAlbumID());
-            contentValues.put(FavoriteSongDataBase.COLUMN_ARTIST, mListSongAdapter.get(position).getmArtistName());
-            contentValues.put(FavoriteSongDataBase.COLUMN_ARTIST_ID, mListSongAdapter.get(position).getmArtistId());
-            contentValues.put(FavoriteSongDataBase.COLUMN_DURATION, mListSongAdapter.get(position).getmDuration());
+            contentValues.put(FavoriteSongDataBase.COLUMN_PATH, mListFavoriteSongAdapter.get(position).getmPath());
+            contentValues.put(FavoriteSongDataBase.COLUMN_TITLE, mListFavoriteSongAdapter.get(position).getmTitle());
+            contentValues.put(FavoriteSongDataBase.COLUMN_TRACK, mListFavoriteSongAdapter.get(position).getmTrackNumber());
+            contentValues.put(FavoriteSongDataBase.COLUMN_YEAR, mListFavoriteSongAdapter.get(position).getmYear());
+            contentValues.put(FavoriteSongDataBase.COLUMN_ALBUM, mListFavoriteSongAdapter.get(position).getmAlbumName());
+            contentValues.put(FavoriteSongDataBase.COLUMN_ALBUM_ID, mListFavoriteSongAdapter.get(position).getmAlbumID());
+            contentValues.put(FavoriteSongDataBase.COLUMN_ARTIST, mListFavoriteSongAdapter.get(position).getmArtistName());
+            contentValues.put(FavoriteSongDataBase.COLUMN_ARTIST_ID, mListFavoriteSongAdapter.get(position).getmArtistId());
+            contentValues.put(FavoriteSongDataBase.COLUMN_DURATION, mListFavoriteSongAdapter.get(position).getmDuration());
 
             return contentValues;
         }
@@ -181,6 +186,13 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                     FavoriteSongProvider.CONTENT_URI, values);
             Toast.makeText(mainActivity.getBaseContext(),
                     uri.toString(), Toast.LENGTH_LONG).show();
+        }
+
+        private void deleteSongFromDataBase(int position){
+            mainActivity.getContentResolver()
+                    .delete(FavoriteSongProvider.CONTENT_URI
+                            , "Path=?", new String[] {mListFavoriteSongAdapter.get(position).mPath});
+            Toast.makeText(mainActivity, "Deleted!", Toast.LENGTH_SHORT).show();
         }
     }
 }

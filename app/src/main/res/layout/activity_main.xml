@@ -22,7 +22,6 @@
                 android:layout_height="match_parent"
                 android:theme="@style/AppTheme.PopupOverlay"
                 app:title="@string/app_name"
-                app:titleMarginStart="30dp"
                 app:titleTextAppearance="@style/ToolbarTheme.TitleTheme">
 
             </androidx.appcompat.widget.Toolbar>

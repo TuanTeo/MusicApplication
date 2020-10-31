@@ -27,8 +27,8 @@
         <item name="android:textSize">18sp</item>
     </style>
 
-    <style name="ToolbarTheme.TitleTheme" parent="TextAppearance.AppCompat.Body2">
-        <item name="android:textSize">28sp</item>
+    <style name="ToolbarTheme.TitleTheme" parent="TextAppearance.AppCompat.Title">
+        <item name="android:textSize">26sp</item>
     </style>
 
     <dimen name="music_toolbar">74dp</dimen>

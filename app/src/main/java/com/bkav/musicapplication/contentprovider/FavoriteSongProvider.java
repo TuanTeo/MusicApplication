@@ -30,16 +30,16 @@ public class FavoriteSongProvider extends ContentProvider {
     public static final int TUTORIALS = 100;
     public static final int TUTORIAL_ID = 110;
 
-    //Column of Table
-    private static final String COLUMN_TITLE = "Title";
-    private static final String COLUMN_TRACK = "Track";
-    private static final String COLUMN_YEAR = "Year";
-    private static final String COLUMN_DURATION = "Duration";
-    private static final String COLUMN_PATH = "Path";
-    private static final String COLUMN_ALBUM = "Album";
-    private static final String COLUMN_ARTIST_ID = "Artist_ID";
-    private static final String COLUMN_ARTIST = "Artist";
-    private static final String COLUMN_ALBUM_ID = "Album_ID";
+//    //Column of Table
+//    private static final String COLUMN_TITLE = "Title";
+//    private static final String COLUMN_TRACK = "Track";
+//    private static final String COLUMN_YEAR = "Year";
+//    private static final String COLUMN_DURATION = "Duration";
+//    private static final String COLUMN_PATH = "Path";
+//    private static final String COLUMN_ALBUM = "Album";
+//    private static final String COLUMN_ARTIST_ID = "Artist_ID";
+//    private static final String COLUMN_ARTIST = "Artist";
+//    private static final String COLUMN_ALBUM_ID = "Album_ID";
 
     public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
             + "/mt-tutorial";
@@ -60,6 +60,10 @@ public class FavoriteSongProvider extends ContentProvider {
         this.mFavoriteSongDB = new FavoriteSongDataBase(getContext());
         mObjWriteDB = mFavoriteSongDB.getWritableDatabase();
         return true;
+    }
+
+    public FavoriteSongDataBase getmFavoriteSongDB(){
+        return this.mFavoriteSongDB;
     }
 
     /**
@@ -114,6 +118,7 @@ public class FavoriteSongProvider extends ContentProvider {
             getContext().getContentResolver().notifyChange(_uri, null);
             return _uri;
         }
+        //TODO: check co roi thi ko insert
         throw new SQLException("Fail to add a record into " + uri);
     }
 
@@ -135,18 +140,18 @@ public class FavoriteSongProvider extends ContentProvider {
                         selectionArgs);
                 break;
             case TUTORIAL_ID:
-                String id = uri.getLastPathSegment();
+                String id = uri.getPathSegments().get(0);
                 if (TextUtils.isEmpty(selection)) {
                     rowsDeleted = sqlDB.delete(FavoriteSongDataBase.TABLE_SONG,
-                            mFavoriteSongDB.COLUMN_PATH+ "=" + id,null);
+                            mFavoriteSongDB.COLUMN_PATH+ "like" + id,null);
                 } else {
                     rowsDeleted = sqlDB.delete(FavoriteSongDataBase.TABLE_SONG,
-                            mFavoriteSongDB.COLUMN_PATH + "=" + id + " and " + selection,
+                            mFavoriteSongDB.COLUMN_PATH + "like" + id + " and " + selection,
                             selectionArgs);
                 }
                 break;
             default:
-                throw new IllegalArgumentException("Unknown URI: " + uri);
+                throw new IllegalArgumentException("Unknown URI: Lam gi co " + uri);
         }
         getContext().getContentResolver().notifyChange(uri, null);
         return rowsDeleted;

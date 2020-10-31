@@ -119,7 +119,7 @@ public class AllSongFragment extends Fragment {
     /**
      * Set onlick for all element of all song fragment
      */
-    public void setOnClick() {
+    public synchronized void setOnClick() {
         //Set onClick for SmallPlayRelativeLayout
         mSmallPlayRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,29 +159,32 @@ public class AllSongFragment extends Fragment {
      * Update UI for SmallPlayingRelativeLayout on AllSongFragment
      */
     public void upDateSmallPlayingRelativeLayout() {
-        Message message = new Message();
-        mHandler.sendMessage(message);
+        if (mMainActivity.getmMediaService().getmMediaPlayer() != null
+                && mMainActivity.getmMediaService().getmMediaPlayer().isPlaying()) {
+            Message message = new Message();
+            mHandler.sendMessage(message);
 
-        int position = mMainActivity.getmMediaService().getmMediaPosition();
-        //Update Song Name, Artist Name, Play Button
-        mCurrentSongNameTextView.setText(mListSongAdapter.get(position).getmTitle());
-        mCurrentArtistNameTextView.setText(mListSongAdapter.get(position).getmArtistName());
-        if (mMainActivity.getmMediaService().getmMediaPlayer().isPlaying()) {
-            mPlayMediaImageButton.setImageResource(R.drawable.ic_media_pause_light);
-        } else {
-            mPlayMediaImageButton.setImageResource(R.drawable.ic_media_play_light);
-        }
+            int position = mMainActivity.getmMediaService().getmMediaPosition();
+            //Update Song Name, Artist Name, Play Button
+            mCurrentSongNameTextView.setText(mListSongAdapter.get(position).getmTitle());
+            mCurrentArtistNameTextView.setText(mListSongAdapter.get(position).getmArtistName());
+            if (mMainActivity.getmMediaService().getmMediaPlayer().isPlaying()) {
+                mPlayMediaImageButton.setImageResource(R.drawable.ic_media_pause_light);
+            } else {
+                mPlayMediaImageButton.setImageResource(R.drawable.ic_media_play_light);
+            }
 
-        //Update AlbumArt
-        mSongImageView.setImageURI(mListSongAdapter.get(position)
-                .queryAlbumUri(mListSongAdapter.get(position).getmAlbumID()));
-        if (mSongImageView.getDrawable() == null) {
-            mSongImageView.setImageResource(R.drawable.ic_reason_album);
+            //Update AlbumArt
+            mSongImageView.setImageURI(mListSongAdapter.get(position)
+                    .queryAlbumUri(mListSongAdapter.get(position).getmAlbumID()));
+            if (mSongImageView.getDrawable() == null) {
+                mSongImageView.setImageResource(R.drawable.ic_reason_album);
+            }
+            //Update UI for Adapter
+            mSongAdapter.notifyDataSetChanged();
+            //Scroll to playing position
+            mRecyclerView.smoothScrollToPosition(position);
         }
-        //Update UI for Adapter
-        mSongAdapter.notifyDataSetChanged();
-        //Scroll to playing position
-        mRecyclerView.smoothScrollToPosition(position);
     }
 
 

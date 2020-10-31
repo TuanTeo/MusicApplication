@@ -87,6 +87,10 @@ public class MediaPlaybackService extends Service {
         return SongProvider.getInstanceNotCreate().getmListSong();
     }
 
+    public void setListSongService(ArrayList<Song> listSong){
+        this.mListAllSong = listSong;
+    }
+
     public void autoNextMedia(){
         if (mMediaStatus == MediaStatus.SHUFFLE
                 || mMediaStatus == MediaStatus.REPEAT_AND_SHUFFLE) {

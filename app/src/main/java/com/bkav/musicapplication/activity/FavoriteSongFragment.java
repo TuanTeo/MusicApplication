@@ -21,8 +21,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bkav.musicapplication.R;
 import com.bkav.musicapplication.contentprovider.FavoriteSongProvider;
-import com.bkav.musicapplication.contentprovider.SongProvider;
 import com.bkav.musicapplication.favoritesongdatabase.FavoriteSongDataBase;
+import com.bkav.musicapplication.song.FavoriteSongAdapter;
 import com.bkav.musicapplication.song.Song;
 import com.bkav.musicapplication.song.SongAdapter;
 
@@ -39,7 +39,7 @@ public class FavoriteSongFragment extends Fragment {
     private TextView mCurrentArtistNameTextView;
     private ImageButton mPlayMediaImageButton;
     private ArrayList<Song> mListSongAdapter;  //song List object
-    private SongAdapter mSongAdapter;   //song Adapter object
+    private FavoriteSongAdapter mFavoriteSongAdapter;   //song Adapter object
     private RecyclerView mRecyclerView; //Recycleview object
 
     private Handler mHandler = new Handler() {   //Handle object as a Thread
@@ -50,7 +50,7 @@ public class FavoriteSongFragment extends Fragment {
             super.handleMessage(msg);
             if (songPosition != mMainActivity.getmMediaService().getmMediaPosition()) {
                 upDateSmallPlayingRelativeLayout();
-                mSongAdapter.notifyDataSetChanged();
+                mFavoriteSongAdapter.notifyDataSetChanged();
             }
             songPosition = mMainActivity.getmMediaService().getmMediaPosition();
 
@@ -60,11 +60,11 @@ public class FavoriteSongFragment extends Fragment {
     };
 
     private static final String[] BASE_PROJECTION = new String[]{
-            FavoriteSongDataBase.COLUMN_TITLE,
+            FavoriteSongDataBase.COLUMN_PATH,
             FavoriteSongDataBase.COLUMN_TRACK,
             FavoriteSongDataBase.COLUMN_YEAR,
             FavoriteSongDataBase.COLUMN_DURATION,
-            FavoriteSongDataBase.COLUMN_PATH,
+            FavoriteSongDataBase.COLUMN_TITLE,
             FavoriteSongDataBase.COLUMN_ALBUM,
             FavoriteSongDataBase.COLUMN_ARTIST_ID,
             FavoriteSongDataBase.COLUMN_ARTIST,
@@ -83,9 +83,9 @@ public class FavoriteSongFragment extends Fragment {
         //Get Favorite Song with FavoriteProvider
         mListSongAdapter = getFavoriteSong();
 
-        mSongAdapter = new SongAdapter(mListSongAdapter, mMainActivity);
+        mFavoriteSongAdapter = new FavoriteSongAdapter(mListSongAdapter, mMainActivity);
         mRecyclerView = view.findViewById(R.id.list_song_recycleview);
-        mRecyclerView.setAdapter(mSongAdapter);
+        mRecyclerView.setAdapter(mFavoriteSongAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mMainActivity.getApplicationContext()));
     }
 
@@ -189,7 +189,7 @@ public class FavoriteSongFragment extends Fragment {
                 mSongImageView.setImageResource(R.drawable.ic_reason_album);
             }
             //Update UI for Adapter
-            mSongAdapter.notifyDataSetChanged();
+            mFavoriteSongAdapter.notifyDataSetChanged();
             //Scroll to playing position
             mRecyclerView.smoothScrollToPosition(position);
         }

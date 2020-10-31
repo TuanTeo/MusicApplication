@@ -3,9 +3,12 @@ package com.bkav.musicapplication.activity;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
 import android.content.ComponentName;
@@ -30,10 +33,13 @@ public class MainActivity extends AppCompatActivity {
 
 //    public static final String ALL_SONG_FRAGMENT_ID = "ALL_SONG_FRAGMENT_ID";
 
+    private int mIsRunning = 0;
+
     private AllSongFragment mAllSongFragment;
     private MediaPlaybackFragment mMediaPlaybackFragment;
     private FavoriteSongFragment mFavoriteSongFragment;
     private MediaPlaybackService mMediaService;
+    private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
     private ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -57,42 +63,62 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         //Create Music app Toolbar
         setSupportActionBar(
                 (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar_main));
 
+        //Set navigation button
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);  //show button
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_navigation_button);    //set button icon
+
         //NavigationView
+        mDrawerLayout = findViewById(R.id.all_screen_view);
         mNavigationView = findViewById(R.id.navigation_view);
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.nav_listen_now:
-                        //TODO: Close navigation page
-                        break;
+                        //Close navigation page
+                        mDrawerLayout.close();
+                        return true;
                     case R.id.nav_music_library:
-                        showAllSongFragment(R.id.container);
-                        break;
-                    case R.id.nav_recents:
-                        showFavoriteSongFragment(R.id.container);
-                }
+                        if(getResources().getConfiguration().orientation
+                                == Configuration.ORIENTATION_PORTRAIT){
+                            showAllSongFragment(R.id.container);
+                        } else {
+                            showAllSongFragment(R.id.container_left);
+                        }
+                        mDrawerLayout.close();
+                        return true;
 
+                    case R.id.nav_recents:
+                        if(getResources().getConfiguration().orientation
+                                == Configuration.ORIENTATION_PORTRAIT){
+                            showFavoriteSongFragment(R.id.container);
+                        } else {
+                            showFavoriteSongFragment(R.id.container_left);
+                        }
+                        mDrawerLayout.close();
+                        return true;
+                }
                 return false;
             }
         });
+
         //Permission READ_EXTERNAL_STORAGE
         if (isReadStoragePermissionGranted()) {
             SongProvider.getInstance(this);
         }
 
-        if (savedInstanceState != null) {
-//            mAllSongFragment = (AllSongFragment) savedInstanceState.getInt(ALL_SONG_FRAGMENT_ID);
-        } else {
+//        if (mIsRunning != 1) {
+////            mAllSongFragment = (AllSongFragment) savedInstanceState.getInt(ALL_SONG_FRAGMENT_ID);
+//        } else {
             mAllSongFragment = new AllSongFragment();
             mMediaPlaybackFragment = new MediaPlaybackFragment();
             mFavoriteSongFragment = new FavoriteSongFragment();
-        }
+//        }
         //Bind to service
         bindMediaService();
         //Create Fragment View
@@ -124,12 +150,17 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-//        int itemID = item.getItemId();
-//        if (itemID == R.id.seach_action_imagebutton) {
-//            /**
-//             * TODO xu ly tac vu tim kiem bai hat trong list bai hat
-//             */
-//        }
+        int itemID = item.getItemId();
+        switch (itemID) {
+            case R.id.seach_action_imagebutton:
+                /**
+                 * TODO xu ly tac vu tim kiem bai hat trong list bai hat
+                 */
+                break;
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -141,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             showAllSongFragment(R.id.container);
         } else {
-//            showAllSongFragment(R.id.container_left);
+            showAllSongFragment(R.id.container_left);
 //            showMediaFragment(R.id.container_right);
         }
     }
