@@ -2,13 +2,18 @@ package com.bkav.musicapplication.song;
 
 import android.content.ContentValues;
 import android.content.res.Configuration;
+import android.database.SQLException;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,7 +50,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
-        if(mainActivity.getmMediaService() != null){
+        if (mainActivity.getmMediaService() != null) {
             mLastItemPositionInt = mainActivity.getmMediaService().getmMediaPosition();
             //Set Name song
             holder.mSongNameItemTextView.setText(mListSongAdapter.get(position).getmTitle());
@@ -127,9 +132,37 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         @Override
         public void onClick(View v) {
 
-            if (v.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
-                //Get position of item
-                mLastItemPositionInt = getAdapterPosition();
+            mLastItemPositionInt = getAdapterPosition();
+
+            mSongDetailItemImageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PopupMenu popupMenu = new PopupMenu(mainActivity.getApplicationContext(), v);
+                    popupMenu.inflate(R.menu.menu_song_item);
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            if(mListSongAdapter.get(mLastItemPositionInt).isFavoriteSong()){
+
+                            }
+                            switch (item.getItemId()) {
+                                case R.id.add_to_favorite_song_item:
+                                    addSongToDataBase(mLastItemPositionInt);
+                                    return true;
+                                case R.id.delete_song_item:
+                                    deleteSongFromDataBase(mLastItemPositionInt);
+                            }
+                            return false;
+                        }
+                    });
+                    popupMenu.show();
+                }
+            });
+
+            if (v.getResources().getConfiguration().orientation
+                    != Configuration.ORIENTATION_LANDSCAPE) {
+//                //Get position of item
+//                mLastItemPositionInt = getAdapterPosition();
 
                 //play Media
                 mainActivity.getmMediaService().playMedia(mLastItemPositionInt);
@@ -143,6 +176,12 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 mainActivity.getmAllSongFragment().showSmallPlayingArea();
                 //Update UI in AllSongFragment
                 mainActivity.getmAllSongFragment().upDateSmallPlayingRelativeLayout();
+
+                if (mListSongAdapter.get(mLastItemPositionInt).isFavoriteSong()) {
+                    addSongToDataBase(mLastItemPositionInt);
+                } else {
+                    mListSongAdapter.get(mLastItemPositionInt).countIncrease();
+                }
             } else {    //Theo chieu ngang => khong hien thi small playing area
                 mLastItemPositionInt = getAdapterPosition();
                 mainActivity.getmMediaService().playMedia(mLastItemPositionInt);
@@ -152,10 +191,11 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         /**
          * Get Song data put to ContentValues
+         *
          * @param position
          * @return
          */
-        private ContentValues getSongData(int position){
+        private ContentValues getSongData(int position) {
             ContentValues contentValues = new ContentValues();
 
             contentValues.put(FavoriteSongDataBase.COLUMN_PATH, mListSongAdapter.get(position).getmPath());
@@ -173,14 +213,29 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         /**
          * Add Song To DataBase
+         *
          * @param position
          */
-        private void addSongToDataBase(int position){
-            ContentValues values = getSongData(position);
-            Uri uri = mainActivity.getContentResolver().insert(
-                    FavoriteSongProvider.CONTENT_URI, values);
-            Toast.makeText(mainActivity.getBaseContext(),
-                    uri.toString(), Toast.LENGTH_LONG).show();
+        private void addSongToDataBase(int position) {
+            try {
+                ContentValues values = getSongData(position);
+                Uri uri = mainActivity.getContentResolver().insert(
+                        FavoriteSongProvider.CONTENT_URI, values);
+            } catch (SQLException ex) {
+                Log.d("SongAdapter", "addSongToDataBase: exception");
+            }
+        }
+
+        /**
+         * Delete this Song from Database
+         *
+         * @param position
+         */
+        private void deleteSongFromDataBase(int position) {
+            mainActivity.getContentResolver()
+                    .delete(FavoriteSongProvider.CONTENT_URI
+                            , "Path=?", new String[]{mListSongAdapter.get(position).getmPath()});
+            Toast.makeText(mainActivity, "Deleted!", Toast.LENGTH_SHORT).show();
         }
     }
 }

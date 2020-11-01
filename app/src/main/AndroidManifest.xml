@@ -28,6 +28,8 @@
             android:name=".contentprovider.FavoriteSongProvider"
             android:authorities="com.bkav.musicapplication.data.FavoriteSong"
             android:multiprocess="true" />
+
+        <receiver android:name=".broadcast.NotificationActionService"></receiver>
     </application>
 
 </manifest>

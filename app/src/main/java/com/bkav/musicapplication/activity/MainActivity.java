@@ -11,6 +11,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
+import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,10 +19,13 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.database.MatrixCursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.bkav.musicapplication.R;
@@ -41,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private MediaPlaybackService mMediaService;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
+    private Menu mMenu;
+
     private ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
@@ -84,8 +90,8 @@ public class MainActivity extends AppCompatActivity {
                         mDrawerLayout.close();
                         return true;
                     case R.id.nav_music_library:
-                        if(getResources().getConfiguration().orientation
-                                == Configuration.ORIENTATION_PORTRAIT){
+                        if (getResources().getConfiguration().orientation
+                                == Configuration.ORIENTATION_PORTRAIT) {
                             showAllSongFragment(R.id.container);
                         } else {
                             showAllSongFragment(R.id.container_left);
@@ -94,8 +100,8 @@ public class MainActivity extends AppCompatActivity {
                         return true;
 
                     case R.id.nav_recents:
-                        if(getResources().getConfiguration().orientation
-                                == Configuration.ORIENTATION_PORTRAIT){
+                        if (getResources().getConfiguration().orientation
+                                == Configuration.ORIENTATION_PORTRAIT) {
                             showFavoriteSongFragment(R.id.container);
                         } else {
                             showFavoriteSongFragment(R.id.container_left);
@@ -115,9 +121,9 @@ public class MainActivity extends AppCompatActivity {
 //        if (mIsRunning != 1) {
 ////            mAllSongFragment = (AllSongFragment) savedInstanceState.getInt(ALL_SONG_FRAGMENT_ID);
 //        } else {
-            mAllSongFragment = new AllSongFragment();
-            mMediaPlaybackFragment = new MediaPlaybackFragment();
-            mFavoriteSongFragment = new FavoriteSongFragment();
+        mAllSongFragment = new AllSongFragment();
+        mMediaPlaybackFragment = new MediaPlaybackFragment();
+        mFavoriteSongFragment = new FavoriteSongFragment();
 //        }
         //Bind to service
         bindMediaService();
@@ -139,7 +145,68 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
+
+        this.mMenu = menu;
+
+//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+//
+//            SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//
+//            SearchView search = (SearchView) menu.findItem(R.id.seach_action_imagebutton).getActionView();
+//
+//            search.setSearchableInfo(manager.getSearchableInfo(getComponentName()));
+//
+//            search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//
+//                @Override
+//                public boolean onQueryTextSubmit(String query) {
+//                    return false;
+//                }
+//
+//                @Override
+//                public boolean onQueryTextChange(String query) {
+//
+//                    loadHistory(query);
+//
+//                    return true;
+//
+//                }
+//
+//            });
+//
+//        }
+
+        return true;
+    }
+
+    /*TODO: fix https://stackoverflow.com/questions/21585326/implementing-searchview-in-action-bar*/
+    private void loadHistory(String query) {
+//
+//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+//
+//            // Cursor
+//            String[] columns = new String[] { "_id", "text" };
+//            Object[] temp = new Object[] { 0, "default" };
+//
+//            MatrixCursor cursor = new MatrixCursor(columns);
+//
+//            for(int i = 0; i < items.size(); i++) {
+//
+//                temp[0] = i;
+//                temp[1] = items.get(i);
+//
+//                cursor.addRow(temp);
+//            }
+//
+//            // SearchView
+//            SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//
+//            final SearchView search = (SearchView) mMenu.findItem(R.id.seach_action_imagebutton).getActionView();
+//
+//            search.setSuggestionsAdapter(new ExampleAdapter(this, cursor, items));
+//
+//        }
+//
     }
 
     /**
@@ -158,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
                  */
                 break;
             case android.R.id.home:
+                //When click to NavigationDrawer
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
         }
@@ -202,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Show Favorite Song Fragment
+     *
      * @param container
      */
     private void showFavoriteSongFragment(int container) {
@@ -211,8 +280,13 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
+    public FavoriteSongFragment getmFavoriteSongFragment() {
+        return mFavoriteSongFragment;
+    }
+
     /**
      * Check read storage permission granted
+     *
      * @return
      */
     private boolean isReadStoragePermissionGranted() {

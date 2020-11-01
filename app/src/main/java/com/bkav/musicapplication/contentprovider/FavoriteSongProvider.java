@@ -11,11 +11,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bkav.musicapplication.favoritesongdatabase.FavoriteSongDataBase;
+import com.bkav.musicapplication.song.Song;
 
 public class FavoriteSongProvider extends ContentProvider {
 
@@ -82,14 +85,14 @@ public class FavoriteSongProvider extends ContentProvider {
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         queryBuilder.setTables(FavoriteSongDataBase.TABLE_SONG);
         int uriType = sUriMatcher.match(uri);
-        switch (uriType){
-            case TUTORIALS:
+//        switch (uriType){
+//            case TUTORIALS:
 //                queryBuilder.appendWhere(FavoriteSongDataBase.COLUMN_PATH + "=" +
-//                        uri.getLastPathSegment());
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI");
-        }
+//                        uri.getPathSegments().get(0));
+//                break;
+//            default:
+//                throw new IllegalArgumentException("Unknown URI");
+//        }
         Cursor cursor = queryBuilder.query(mFavoriteSongDB.getReadableDatabase(),projection
                 , selection, selectionArgs,null, null, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
@@ -112,14 +115,24 @@ public class FavoriteSongProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        long rowID = mObjWriteDB.insert(FavoriteSongDataBase.TABLE_SONG, null, values);
-        if(rowID > 0){
-            Uri _uri = ContentUris.withAppendedId(CONTENT_URI, rowID);
-            getContext().getContentResolver().notifyChange(_uri, null);
-            return _uri;
+
+        //Kiểm tra xem uri cua Song đã có trong Database chưa
+        Cursor cursor = query(FavoriteSongProvider.CONTENT_URI,null,
+                "Path = ?", new String[]{values.getAsString(FavoriteSongDataBase.COLUMN_PATH)},
+                null);
+        if(cursor.moveToFirst()){
+            Log.d("FavoriteSongProvider", "insert: already exist!");
+            return null;
+        } else {
+            long rowID = mObjWriteDB.insert(FavoriteSongDataBase.TABLE_SONG, null, values);
+            if (rowID > 0) {
+                Uri _uri = ContentUris.withAppendedId(CONTENT_URI, rowID);
+                getContext().getContentResolver().notifyChange(_uri, null);
+                return _uri;
+            }
+            values.get(FavoriteSongDataBase.COLUMN_ALBUM_ID);
+            throw new SQLException("Fail to add a record into " + uri);
         }
-        //TODO: check co roi thi ko insert
-        throw new SQLException("Fail to add a record into " + uri);
     }
 
     /**

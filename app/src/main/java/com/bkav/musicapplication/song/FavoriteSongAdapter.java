@@ -5,10 +5,12 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -126,10 +128,35 @@ public class FavoriteSongAdapter extends RecyclerView.Adapter<FavoriteSongAdapte
 
         @Override
         public void onClick(View v) {
+            //Get position of item
+            mLastItemPositionInt = getAdapterPosition();
+
+            mSongDetailItemImageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PopupMenu popupMenu = new PopupMenu(mainActivity.getApplicationContext(), v);
+                    popupMenu.inflate(R.menu.menu_favorite_song_item);
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            if(mListFavoriteSongAdapter.get(mLastItemPositionInt).isFavoriteSong()){
+
+                            }
+                            switch (item.getItemId()) {
+                                case R.id.remove_favorite_song_item:
+                                    deleteSongFromDataBase(mLastItemPositionInt);
+                            }
+                            return false;
+                        }
+                    });
+                    popupMenu.show();
+                }
+            });
+
             //Theo chieu doc => Show small playing area
             if (v.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
-                //Get position of item
-                mLastItemPositionInt = getAdapterPosition();
+//                //Get position of item
+//                mLastItemPositionInt = getAdapterPosition();
 
                 //Reset list song of Service
                 mainActivity.getmMediaService().setListSongService(mListFavoriteSongAdapter);
@@ -145,9 +172,9 @@ public class FavoriteSongAdapter extends RecyclerView.Adapter<FavoriteSongAdapte
                 //UpDate data on View
                 notifyDataSetChanged();
                 //Show small playing area
-                mainActivity.getmAllSongFragment().showSmallPlayingArea();
+                mainActivity.getmFavoriteSongFragment().showSmallPlayingArea();
                 //Update UI in AllSongFragment
-                mainActivity.getmAllSongFragment().upDateSmallPlayingRelativeLayout();
+                mainActivity.getmFavoriteSongFragment().upDateSmallPlayingRelativeLayout();
             } else {    //Theo chieu ngang => khong hien thi small playing area
                 mLastItemPositionInt = getAdapterPosition();
                 mainActivity.getmMediaService().playMedia(mLastItemPositionInt);
@@ -191,7 +218,7 @@ public class FavoriteSongAdapter extends RecyclerView.Adapter<FavoriteSongAdapte
         private void deleteSongFromDataBase(int position){
             mainActivity.getContentResolver()
                     .delete(FavoriteSongProvider.CONTENT_URI
-                            , "Path=?", new String[] {mListFavoriteSongAdapter.get(position).mPath});
+                            , "Path=?", new String[] {mListFavoriteSongAdapter.get(position).getmPath()});
             Toast.makeText(mainActivity, "Deleted!", Toast.LENGTH_SHORT).show();
         }
     }

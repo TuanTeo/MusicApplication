@@ -24,7 +24,6 @@ import com.bkav.musicapplication.contentprovider.FavoriteSongProvider;
 import com.bkav.musicapplication.favoritesongdatabase.FavoriteSongDataBase;
 import com.bkav.musicapplication.song.FavoriteSongAdapter;
 import com.bkav.musicapplication.song.Song;
-import com.bkav.musicapplication.song.SongAdapter;
 
 import java.util.ArrayList;
 
@@ -81,7 +80,7 @@ public class FavoriteSongFragment extends Fragment {
 //        mListSongAdapter = SongProvider.getInstance(getActivity().getApplicationContext()).getmListSong();
 
         //Get Favorite Song with FavoriteProvider
-        mListSongAdapter = getFavoriteSong();
+        mListSongAdapter = getFavoriteSongs();
 
         mFavoriteSongAdapter = new FavoriteSongAdapter(mListSongAdapter, mMainActivity);
         mRecyclerView = view.findViewById(R.id.list_song_recycleview);
@@ -195,7 +194,7 @@ public class FavoriteSongFragment extends Fragment {
         }
     }
 
-    private ArrayList<Song> getFavoriteSong() {
+    private ArrayList<Song> getFavoriteSongs() {
         ArrayList<Song> songArrayList = new ArrayList<>();
         Cursor cursor = getContext().getContentResolver()
                 .query(FavoriteSongProvider.CONTENT_URI, BASE_PROJECTION,

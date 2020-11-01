@@ -7,18 +7,24 @@ import android.net.Uri;
 import java.text.SimpleDateFormat;
 
 public class Song {
+    public static final int FAVORITE_SONG = 100;
+    public static final int NOT_FAVORITE_SONG = -1;
+
+
     static final Song EMPTY_SONG = new Song("", -1, -1, -1, null, "", -1, "", "");
 
-    public final String mTitle;
-    public final int mTrackNumber;
-    public final int mDuration;
-    public final String mPath;
-    public final String mAlbumName;
-    public final int mArtistId;
-    public final String mArtistName;
-    public final int mYear;
-    public final String mAlbumID;
+    private final String mTitle;
+    private final int mTrackNumber;
+    private final int mDuration;
+    private final String mPath;
+    private final String mAlbumName;
+    private final int mArtistId;
+    private final String mArtistName;
+    private final int mYear;
+    private final String mAlbumID;
 
+    private int mCount;
+    private int mIsFavorite;
 
     public Song(String title, int trackNumber, int mYear, int mDuration, String mPath, String mAlbumName, int mArtistId, String mArtistName, String mAlbumID) {
         this.mTitle = title;
@@ -30,6 +36,43 @@ public class Song {
         this.mArtistId = mArtistId;
         this.mArtistName = mArtistName;
         this.mAlbumID = mAlbumID;
+        this.mCount = 0;
+    }
+
+    /**
+     * Increase play count number
+      */
+    public void countIncrease(){
+        if(mCount >=0 && mCount < 3) {
+            mCount++;
+        } else {
+            mIsFavorite = FAVORITE_SONG;
+        }
+    }
+
+    /**
+     * Check Song is Favorite
+     * @return
+     */
+    public boolean isFavoriteSong(){
+        if(mIsFavorite == FAVORITE_SONG){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Set song to Unlike
+     */
+    public void setNotFavoriteSong(){
+        mCount = -1;    //Dont increase mCount
+        mIsFavorite = NOT_FAVORITE_SONG;
+    }
+
+    public void setFavoriteToDefault(){
+        mCount = 0;
+        mIsFavorite = NOT_FAVORITE_SONG;
     }
 
     /**
@@ -80,6 +123,14 @@ public class Song {
 
     public String getmAlbumID() {
         return mAlbumID;
+    }
+
+    public int getmCount() {
+        return mCount;
+    }
+
+    public void setmCount(int mCount) {
+        this.mCount = mCount;
     }
 
     public static Uri queryAlbumUri(String imgUri) {   //dung album de load anh

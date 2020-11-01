@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Binder;
@@ -17,6 +19,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.bkav.musicapplication.Enum.MediaStatus;
 import com.bkav.musicapplication.R;
+import com.bkav.musicapplication.broadcast.NotificationActionService;
 import com.bkav.musicapplication.song.Song;
 import com.bkav.musicapplication.activity.MainActivity;
 import com.bkav.musicapplication.contentprovider.SongProvider;
@@ -37,6 +40,10 @@ public class MediaPlaybackService extends Service {
 
     private static final String NOTIFI_CHANNEL_ID = "notification_channel";
     private static final int MEDIA_NOTIFICATION_ID = 0;
+    private static final String ACTION_PREVIOUS = "action_previous";
+    private static final String ACTION_PLAY = "action_play";
+    private static final String ACTION_NEXT = "action_next";
+
     private NotificationManager mNotificationManager;
 
     private int mMediaPosition = -1;
@@ -74,6 +81,7 @@ public class MediaPlaybackService extends Service {
         if(mMediaPlayer != null){
             mMediaPlayer.release();
         }
+        stopSelf();
     }
 
     //Tra ve 1 doi tuong MediaPlaybackService
@@ -143,6 +151,7 @@ public class MediaPlaybackService extends Service {
 
     public void playMedia(int position) {
         mMediaPosition = position;
+        sendNotification();
         try {
             stopMedia();
             mMediaPlayer = new MediaPlayer();
@@ -155,7 +164,7 @@ public class MediaPlaybackService extends Service {
                     autoNextMedia();
                 }
             });
-            sendNotification();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -235,6 +244,7 @@ public class MediaPlaybackService extends Service {
             notificationChannel.enableLights(false); //Set mau den thong bao (true)
             notificationChannel.setLightColor(Color.RED);   //Mau do
             notificationChannel.enableVibration(false);  //Rung khi thong bao
+
             mNotificationManager.createNotificationChannel(notificationChannel);    //Tao kenh thong bao
         }
     }
@@ -245,18 +255,58 @@ public class MediaPlaybackService extends Service {
      */
     private NotificationCompat.Builder getNotificationBuilder(){
         //Tao event clicked in notification => back to MainActivity
-        Intent notificationIntent = new Intent(this, MainActivity.class);
+        Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
         PendingIntent notificationPendingIntent = PendingIntent.getActivity(this,
                 MEDIA_NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        /*Add Media control button and set action*/
+        //Previous button
+        Intent intentPrev = new Intent(getApplicationContext(), NotificationActionService.class)
+                .setAction(ACTION_PREVIOUS);
+        PendingIntent pendingIntentPrev = PendingIntent.getActivity(getApplicationContext(),
+                0, intentPrev, PendingIntent.FLAG_UPDATE_CURRENT);
+        int prevImage = R.drawable.ic_rew_dark;
+
+        //Next button
+        Intent intentNext = new Intent(getApplicationContext(), NotificationActionService.class)
+                .setAction(ACTION_NEXT);
+        PendingIntent pendingIntentNext = PendingIntent.getActivity(getApplicationContext(),
+                0, intentPrev, PendingIntent.FLAG_UPDATE_CURRENT);
+        int nextImage = R.drawable.ic_fwd_dark;
+
+        //Play button
+        int playImage;
+        Intent intentPlay = new Intent(getApplicationContext(), NotificationActionService.class)
+                .setAction(ACTION_PLAY);
+        PendingIntent pendingIntentPlay = PendingIntent.getActivity(getApplicationContext(),
+                0, intentPrev, PendingIntent.FLAG_UPDATE_CURRENT);
+        if(mMediaPlayer != null && mMediaPlayer.isPlaying()){
+            playImage = R.mipmap.ic_media_pause_light;
+        } else {
+            playImage = R.mipmap.ic_media_play_light;
+        }
+
+
+
+        //Bitmap to set to Drawer Notification
+        Bitmap albumArt = BitmapFactory.decodeResource(getResources(), R.drawable.ic_reason_album);
 
         NotificationCompat.Builder notifyBuilder =
                 new NotificationCompat.Builder(this, NOTIFI_CHANNEL_ID)
                         .setContentTitle(mListAllSong.get(mMediaPosition).getmTitle())  //Set title
                         .setContentText(mListAllSong.get(mMediaPosition).getmArtistName())  //Set text detail
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .setPriority(PRIORITY_MIN)
+                        .setSmallIcon(R.mipmap.ic_launcher) //Set smallIcon (bat buoc)
+                        .setLargeIcon(albumArt)
                         .setDefaults(DEFAULT_ALL)
-                        .setContentIntent(notificationPendingIntent);    //Set smallIcon (bat buoc)
+                        .setOnlyAlertOnce(true)     //Show notification for only first time
+                        .setContentIntent(notificationPendingIntent)
+                        .setAutoCancel(false)       //Can't remove notification
+                        .addAction(prevImage, "Previous", pendingIntentPrev)
+                        .addAction(playImage, "Play", pendingIntentPlay)
+                        .addAction(nextImage, "Next", pendingIntentNext)
+                        .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                            .setShowActionsInCompactView(0, 1, 2))
+                        .setOngoing(true);          //Need to don't remove notification
 
         return notifyBuilder;
     }

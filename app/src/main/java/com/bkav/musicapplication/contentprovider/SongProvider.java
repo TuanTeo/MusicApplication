@@ -66,7 +66,7 @@ public class SongProvider {
         ArrayList<Song> songs = new ArrayList<>();
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                if (getSongFromCursorImpl(cursor).mDuration >= 5000) {
+                if (getSongFromCursorImpl(cursor).getmDuration() >= 5000) {
                     songs.add(getSongFromCursorImpl(cursor));
                 }
             } while (cursor.moveToNext());
