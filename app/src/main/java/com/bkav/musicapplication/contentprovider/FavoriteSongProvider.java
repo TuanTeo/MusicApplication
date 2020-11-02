@@ -121,7 +121,6 @@ public class FavoriteSongProvider extends ContentProvider {
                 "Path = ?", new String[]{values.getAsString(FavoriteSongDataBase.COLUMN_PATH)},
                 null);
         if(cursor.moveToFirst()){
-            Log.d("FavoriteSongProvider", "insert: already exist!");
             return null;
         } else {
             long rowID = mObjWriteDB.insert(FavoriteSongDataBase.TABLE_SONG, null, values);

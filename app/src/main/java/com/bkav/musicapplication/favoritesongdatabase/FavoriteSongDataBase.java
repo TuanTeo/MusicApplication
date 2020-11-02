@@ -33,6 +33,7 @@ public class FavoriteSongDataBase extends SQLiteOpenHelper {
     public static final String COLUMN_ARTIST_ID = "Artist_ID";
     public static final String COLUMN_ARTIST = "Artist";
     public static final String COLUMN_ALBUM_ID = "Album_ID";
+    public static final String COLUMN_ID = "_id";
 
     //Item Position
     private static final int PATH = 0;
@@ -44,6 +45,7 @@ public class FavoriteSongDataBase extends SQLiteOpenHelper {
     private static final int ARTIST_ID = 6;
     private static final int ARTIST = 7;
     private static final int ALBUM_ID = 8;
+    private static final int _ID = 9;
 
     private ContentResolver mContentResolver;
 
@@ -59,7 +61,8 @@ public class FavoriteSongDataBase extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String script = "CREATE TABLE " + TABLE_SONG + "("
-                + COLUMN_PATH + " TEXT PRIMARY KEY," + COLUMN_TITLE + " TEXT,"
+                + COLUMN_ID + " INTEGER PRIMARY KEY,"
+                + COLUMN_PATH + " TEXT," + COLUMN_TITLE + " TEXT,"
                 + COLUMN_TRACK + " INTEGER, " + COLUMN_YEAR + " INTEGER,"
                 + COLUMN_DURATION + " INTEGER," + COLUMN_ALBUM + " TEXT,"
                 + COLUMN_ARTIST_ID + " INTEGER," + COLUMN_ARTIST + " TEXT,"
@@ -93,6 +96,7 @@ public class FavoriteSongDataBase extends SQLiteOpenHelper {
         values.put(COLUMN_ARTIST_ID, song.getmArtistId());
         values.put(COLUMN_ARTIST, song.getmArtistName());
         values.put(COLUMN_ALBUM_ID, song.getmAlbumID());
+        values.put(COLUMN_ID, song.getmID());
 
         //Insert Row
         db.insert(TABLE_SONG, null, values);
@@ -128,8 +132,10 @@ public class FavoriteSongDataBase extends SQLiteOpenHelper {
                 final int artistId = cursor.getInt(ARTIST_ID);
                 final String artistName = cursor.getString(ARTIST);
                 final String albumID = cursor.getString(ALBUM_ID);
+                final int _id = cursor.getInt(_ID);
 
-                Song song = new Song(title, trackNumber, year, duration, uri, albumName, artistId, artistName, albumID);
+                Song song = new Song(title, trackNumber, year, duration, uri,
+                        albumName, artistId, artistName, albumID, _id);
                 songList.add(song);
             } while (cursor.moveToNext());
         }

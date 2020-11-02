@@ -11,7 +11,8 @@ public class Song {
     public static final int NOT_FAVORITE_SONG = -1;
 
 
-    static final Song EMPTY_SONG = new Song("", -1, -1, -1, null, "", -1, "", "");
+    static final Song EMPTY_SONG = new Song("", -1, -1, -1,
+            null, "", -1, "", "", -1);
 
     private final String mTitle;
     private final int mTrackNumber;
@@ -22,11 +23,13 @@ public class Song {
     private final String mArtistName;
     private final int mYear;
     private final String mAlbumID;
+    private final int mID;
 
     private int mCount;
     private int mIsFavorite;
 
-    public Song(String title, int trackNumber, int mYear, int mDuration, String mPath, String mAlbumName, int mArtistId, String mArtistName, String mAlbumID) {
+    public Song(String title, int trackNumber, int mYear, int mDuration, String mPath,
+                String mAlbumName, int mArtistId, String mArtistName, String mAlbumID, int mID) {
         this.mTitle = title;
         this.mTrackNumber = trackNumber;
         this.mYear = mYear;
@@ -36,6 +39,7 @@ public class Song {
         this.mArtistId = mArtistId;
         this.mArtistName = mArtistName;
         this.mAlbumID = mAlbumID;
+        this.mID = mID;
         this.mCount = 0;
     }
 
@@ -123,6 +127,10 @@ public class Song {
 
     public String getmAlbumID() {
         return mAlbumID;
+    }
+
+    public int getmID() {
+        return mID;
     }
 
     public int getmCount() {

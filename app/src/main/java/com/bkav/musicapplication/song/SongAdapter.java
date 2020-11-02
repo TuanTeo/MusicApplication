@@ -33,6 +33,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     private LayoutInflater mInflater;
     private MainActivity mainActivity;
 
+    private int mCurrentSongId = -1;
     private int mLastItemPositionInt = -1;  //Vi tri cua phan tu khi clicked
 
     public SongAdapter(ArrayList<Song> mListSongAdapter, MainActivity context) {
@@ -105,6 +106,12 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         return mListSongAdapter.size();
     }
 
+    public void setFilter(ArrayList<Song> newList) {
+        mListSongAdapter = new ArrayList<>();
+        mListSongAdapter.addAll(newList);
+        notifyDataSetChanged();
+    }
+
     public class SongViewHolder extends RecyclerView.ViewHolder
             implements RecyclerView.OnClickListener {
 
@@ -125,32 +132,30 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             mSongNameItemTextView = itemView.findViewById(R.id.song_name_item_textview);
             mTotalTimeSongItemTextView = itemView.findViewById(R.id.total_time_song_item_textview);
             mSongDetailItemImageButton = itemView.findViewById(R.id.song_detail_item);
-            mPlayingSongImageLinearLayout = itemView.findViewById(R.id.playing_icon_layout);
-            itemView.setOnClickListener(this);
-        }
 
-        @Override
-        public void onClick(View v) {
-
-            mLastItemPositionInt = getAdapterPosition();
-
+            //Set onClick for Detail image button
             mSongDetailItemImageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    int position = getAdapterPosition();
                     PopupMenu popupMenu = new PopupMenu(mainActivity.getApplicationContext(), v);
                     popupMenu.inflate(R.menu.menu_song_item);
                     popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
-                            if(mListSongAdapter.get(mLastItemPositionInt).isFavoriteSong()){
-
+                            if(mListSongAdapter.get(position).isFavoriteSong()){
+                                if(item.getItemId() == R.id.add_to_favorite_song_item){
+                                    item.setEnabled(false);
+                                }
                             }
                             switch (item.getItemId()) {
                                 case R.id.add_to_favorite_song_item:
-                                    addSongToDataBase(mLastItemPositionInt);
+                                    addSongToDataBase(position);
+                                    notifyDataSetChanged();
                                     return true;
                                 case R.id.delete_song_item:
-                                    deleteSongFromDataBase(mLastItemPositionInt);
+                                    deleteSongFromDataBase(position);
+                                    return true;
                             }
                             return false;
                         }
@@ -159,10 +164,23 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 }
             });
 
+            mPlayingSongImageLinearLayout = itemView.findViewById(R.id.playing_icon_layout);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+
+            mLastItemPositionInt = getAdapterPosition();
+//            mCurrentSongId = mListSongAdapter.get(mLastItemPositionInt).getmID();
+
             if (v.getResources().getConfiguration().orientation
                     != Configuration.ORIENTATION_LANDSCAPE) {
 //                //Get position of item
 //                mLastItemPositionInt = getAdapterPosition();
+
+                //Update List Song for Service
+                mainActivity.getmMediaService().setListSongService(mListSongAdapter);
 
                 //play Media
                 mainActivity.getmMediaService().playMedia(mLastItemPositionInt);

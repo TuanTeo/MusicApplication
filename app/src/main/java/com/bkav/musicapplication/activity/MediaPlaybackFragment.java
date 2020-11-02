@@ -64,20 +64,22 @@ public class MediaPlaybackFragment extends Fragment
     private ArrayList<Song> mListAllSong;
 
     //Check to repeat
-    private int mIsRepeat = 0;  // 0:NONE    -   1:REPEAT    -   2:REPEAT_ONE
+    private static int mIsRepeat = 0;  // 0:NONE    -   1:REPEAT    -   2:REPEAT_ONE
     //Check to shuffle
-    private boolean mIsShuffle = false;
+    private static boolean mIsShuffle = false;
 
     //Media Status
     MediaStatus mMediaStatus = MediaStatus.NONE;
 
     //SimpleDateFormat to format song time
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
-    ;
+
+    //Variables to check when have to update UI
+    private int mSongPosition = -1;
+    boolean mIsPlay = false;
 
     //TODO:Handler object to do update current play time - is a thread, send message each delay time
     private Handler mHandler = new Handler() {
-        private int songPosition = -1;
 
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -100,9 +102,11 @@ public class MediaPlaybackFragment extends Fragment
             mSongSeekBar.setProgress(
                     mMediaPlaybackService.getmMediaPlayer().getCurrentPosition());
             //Update View when next Song
-            if (songPosition != mMediaPlaybackService.getmMediaPosition()) {
+            if (mSongPosition != mMediaPlaybackService.getmMediaPosition()
+                    || mIsPlay != mMediaPlaybackActivity.getmMediaService().getmMediaPlayer().isPlaying()) {
                 upDateInfoView();
-                songPosition = mMediaPlaybackService.getmMediaPosition();
+                mSongPosition = mMediaPlaybackService.getmMediaPosition();
+                mIsPlay = mMediaPlaybackActivity.getmMediaService().getmMediaPlayer().isPlaying();
             }
             Message message = new Message();
 //                  message.arg1 = position;
@@ -143,8 +147,8 @@ public class MediaPlaybackFragment extends Fragment
         SharedPreferences sharedPreferences =
                 mMediaPlaybackActivity
                         .getSharedPreferences("Repeat_and_Shuffle_status", Context.MODE_PRIVATE);
-        //TODO: get status for repeat and shuffle button
-        int repeatStatus = sharedPreferences.getInt(REPEAT_STATUS, 0);
+        //Get status for repeat and shuffle button
+        int repeatStatus = sharedPreferences.getInt(REPEAT_STATUS, -1);
         boolean shuffleStatus = sharedPreferences.getBoolean(SHUFFLE_STATUS, false);
         if (repeatStatus == 1) {
             mRepeatImageButton.setImageResource(R.drawable.ic_repeat_dark_selected);
@@ -312,12 +316,12 @@ public class MediaPlaybackFragment extends Fragment
         //upDateTimeSong();
         //// TODO: 10/24/20 thanhnch se xem van de khong goi duoc interface trong onbind sevice
 
-        if (mMediaPlaybackService.getmMediaPlayer().isPlaying()) {
+//        if (mMediaPlaybackService.getmMediaPlayer().isPlaying()) {
             //TODO: what is Message? and what do it do?
             Message message = new Message();
 //            message.arg1 = mMediaPlaybackService.getmMediaPlayer().getCurrentPosition();
             mHandler.sendMessage(message);
-        }
+//        }
 
         if (mMediaPlaybackService != null) {
             if (mMediaPlaybackService.getmMediaPlayer().isPlaying()) {
@@ -475,6 +479,7 @@ public class MediaPlaybackFragment extends Fragment
         editor.putBoolean(SHUFFLE_STATUS, mIsShuffle);
         editor.putInt(REPEAT_STATUS, mIsRepeat);
         editor.commit();
+
     }
 
 }

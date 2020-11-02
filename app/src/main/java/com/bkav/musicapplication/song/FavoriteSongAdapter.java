@@ -122,6 +122,28 @@ public class FavoriteSongAdapter extends RecyclerView.Adapter<FavoriteSongAdapte
             mSongNameItemTextView = itemView.findViewById(R.id.song_name_item_textview);
             mTotalTimeSongItemTextView = itemView.findViewById(R.id.total_time_song_item_textview);
             mSongDetailItemImageButton = itemView.findViewById(R.id.song_detail_item);
+            mSongDetailItemImageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    PopupMenu popupMenu = new PopupMenu(mainActivity.getApplicationContext(), v);
+                    popupMenu.inflate(R.menu.menu_favorite_song_item);
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            switch (item.getItemId()) {
+                                case R.id.remove_favorite_song_item:
+                                    deleteSongFromDataBase(position);
+                                    notifyItemRemoved(position);
+                                    notifyDataSetChanged();
+                                    return true;
+                            }
+                            return false;
+                        }
+                    });
+                    popupMenu.show();
+                }
+            });
             mPlayingSongImageLinearLayout = itemView.findViewById(R.id.playing_icon_layout);
             itemView.setOnClickListener(this);
         }
@@ -131,35 +153,35 @@ public class FavoriteSongAdapter extends RecyclerView.Adapter<FavoriteSongAdapte
             //Get position of item
             mLastItemPositionInt = getAdapterPosition();
 
-            mSongDetailItemImageButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    PopupMenu popupMenu = new PopupMenu(mainActivity.getApplicationContext(), v);
-                    popupMenu.inflate(R.menu.menu_favorite_song_item);
-                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem item) {
-                            if(mListFavoriteSongAdapter.get(mLastItemPositionInt).isFavoriteSong()){
-
-                            }
-                            switch (item.getItemId()) {
-                                case R.id.remove_favorite_song_item:
-                                    deleteSongFromDataBase(mLastItemPositionInt);
-                            }
-                            return false;
-                        }
-                    });
-                    popupMenu.show();
-                }
-            });
+//            mSongDetailItemImageButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    PopupMenu popupMenu = new PopupMenu(mainActivity.getApplicationContext(), v);
+//                    popupMenu.inflate(R.menu.menu_favorite_song_item);
+//                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+//                        @Override
+//                        public boolean onMenuItemClick(MenuItem item) {
+//                            if(mListFavoriteSongAdapter.get(mLastItemPositionInt).isFavoriteSong()){
+//
+//                            }
+//                            switch (item.getItemId()) {
+//                                case R.id.remove_favorite_song_item:
+//                                    deleteSongFromDataBase(mLastItemPositionInt);
+//                            }
+//                            return false;
+//                        }
+//                    });
+//                    popupMenu.show();
+//                }
+//            });
 
             //Theo chieu doc => Show small playing area
             if (v.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
 //                //Get position of item
 //                mLastItemPositionInt = getAdapterPosition();
 
-                //Reset list song of Service
                 mainActivity.getmMediaService().setListSongService(mListFavoriteSongAdapter);
+
                 //play Media
                 mainActivity.getmMediaService().playMedia(mLastItemPositionInt);
 
@@ -167,7 +189,7 @@ public class FavoriteSongAdapter extends RecyclerView.Adapter<FavoriteSongAdapte
 //                addSongToDataBase(mainActivity.getmMediaService().getmMediaPosition());
 
                 //Delete Current Song from Database
-                deleteSongFromDataBase(mLastItemPositionInt);
+//                deleteSongFromDataBase(mLastItemPositionInt);
 
                 //UpDate data on View
                 notifyDataSetChanged();

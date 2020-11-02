@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.MenuItemCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
@@ -25,27 +26,30 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.bkav.musicapplication.R;
 import com.bkav.musicapplication.contentprovider.SongProvider;
 import com.bkav.musicapplication.service.MediaPlaybackService;
+import com.bkav.musicapplication.song.Song;
 import com.google.android.material.navigation.NavigationView;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener{
 
 //    public static final String ALL_SONG_FRAGMENT_ID = "ALL_SONG_FRAGMENT_ID";
 
     private int mIsRunning = 0;
 
-    private AllSongFragment mAllSongFragment;
-    private MediaPlaybackFragment mMediaPlaybackFragment;
-    private FavoriteSongFragment mFavoriteSongFragment;
+    private AllSongFragment mAllSongFragment = new AllSongFragment();
+    private MediaPlaybackFragment mMediaPlaybackFragment = new MediaPlaybackFragment();
+    private FavoriteSongFragment mFavoriteSongFragment = new FavoriteSongFragment();
     private MediaPlaybackService mMediaService;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
-    private Menu mMenu;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -54,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             //Tao doi tuong service
             MediaPlaybackService.BoundService bind = (MediaPlaybackService.BoundService) service;
             mMediaService = bind.getService(); //Get instance of service
-            onStart();
+            createMainView();
             Toast.makeText(mMediaService, "onServiceConnected: MainActivity", Toast.LENGTH_SHORT).show();
         }
 
@@ -121,9 +125,9 @@ public class MainActivity extends AppCompatActivity {
 //        if (mIsRunning != 1) {
 ////            mAllSongFragment = (AllSongFragment) savedInstanceState.getInt(ALL_SONG_FRAGMENT_ID);
 //        } else {
-        mAllSongFragment = new AllSongFragment();
-        mMediaPlaybackFragment = new MediaPlaybackFragment();
-        mFavoriteSongFragment = new FavoriteSongFragment();
+//        mAllSongFragment = new AllSongFragment();
+//        mMediaPlaybackFragment = new MediaPlaybackFragment();
+//        mFavoriteSongFragment = new FavoriteSongFragment();
 //        }
         //Bind to service
         bindMediaService();
@@ -146,68 +150,12 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        this.mMenu = menu;
-
-//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-//
-//            SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-//
-//            SearchView search = (SearchView) menu.findItem(R.id.seach_action_imagebutton).getActionView();
-//
-//            search.setSearchableInfo(manager.getSearchableInfo(getComponentName()));
-//
-//            search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//
-//                @Override
-//                public boolean onQueryTextSubmit(String query) {
-//                    return false;
-//                }
-//
-//                @Override
-//                public boolean onQueryTextChange(String query) {
-//
-//                    loadHistory(query);
-//
-//                    return true;
-//
-//                }
-//
-//            });
-//
-//        }
-
+        MenuItem search = menu.findItem(R.id.seach_action_imagebutton);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(search);
+        searchView.setOnQueryTextListener(this);
         return true;
     }
 
-    /*TODO: fix https://stackoverflow.com/questions/21585326/implementing-searchview-in-action-bar*/
-    private void loadHistory(String query) {
-//
-//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-//
-//            // Cursor
-//            String[] columns = new String[] { "_id", "text" };
-//            Object[] temp = new Object[] { 0, "default" };
-//
-//            MatrixCursor cursor = new MatrixCursor(columns);
-//
-//            for(int i = 0; i < items.size(); i++) {
-//
-//                temp[0] = i;
-//                temp[1] = items.get(i);
-//
-//                cursor.addRow(temp);
-//            }
-//
-//            // SearchView
-//            SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-//
-//            final SearchView search = (SearchView) mMenu.findItem(R.id.seach_action_imagebutton).getActionView();
-//
-//            search.setSuggestionsAdapter(new ExampleAdapter(this, cursor, items));
-//
-//        }
-//
-    }
 
     /**
      * Set event for item clicked
@@ -295,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
                 getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
                 PackageManager.PERMISSION_GRANTED) {
             // You can use the API that requires the permission.
+            createMainView();
             return true;
         } else if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
             // In an educational UI, explain to the user why your app requires this
@@ -323,27 +272,9 @@ public class MainActivity extends AppCompatActivity {
 //        }
     }
 
-//    private boolean isReadDataBasePermissionGranted(){
-//        if (ContextCompat.checkSelfPermission(
-//                getApplicationContext(), Manifest.permission.READ_DATA_BASE) ==
-//                PackageManager.PERMISSION_GRANTED) {
-//            // You can use the API that requires the permission.
-//            return true;
-//        } else if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-//            // In an educational UI, explain to the user why your app requires this
-//            // permission for a specific feature to behave as expected. In this UI,
-//            // include a "cancel" or "no thanks" button that allows the user to
-//            // continue using your app without granting the permission.
-//            showInContextUI();
-//
-//        } else {
-//            // You can directly ask for the permission.
-//            // The registered ActivityResultCallback gets the result of this request.
-//            requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
-//        }
-//        return false;
-//    }
-
+    /**
+     * Show a dialog why this app requires READ_EXTERNAL_STORAGE permission
+     */
     private void showInContextUI() {
 //        Toast.makeText(MainActivity.this,
 //                "App nghe nhac can quyen doc ghi the nho de hien thi danh sach bai hat" +
@@ -369,9 +300,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // Register the permissions callback, which handles the user's response to the
-    // system permissions dialog. Save the return value, an instance of
-    // ActivityResultLauncher, as an instance variable.
+    /**
+     * Register the permissions callback, which handles the user's response to the
+     * system permissions dialog. Save the return value, an instance of
+     * ActivityResultLauncher, as an instance variable.
+     */
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
@@ -403,11 +336,32 @@ public class MainActivity extends AppCompatActivity {
         return mMediaService;
     }
 
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        newText = newText.toLowerCase();
+        ArrayList<Song> newList = new ArrayList<>();
+        for(Song song: mAllSongFragment.getmListSongAdapter()){
+            String title = song.getmTitle().toLowerCase();
+            if(title.contains(newText)){
+                newList.add(song);
+            }
+        }
+        mAllSongFragment.getmSongAdapter().setFilter(newList);
+        return true;
+    }
+
     /**
      *
      */
     public interface IBindService {
         void onBind();
     }
+
+
 
 }

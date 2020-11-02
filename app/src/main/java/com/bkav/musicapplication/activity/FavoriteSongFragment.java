@@ -41,20 +41,25 @@ public class FavoriteSongFragment extends Fragment {
     private FavoriteSongAdapter mFavoriteSongAdapter;   //song Adapter object
     private RecyclerView mRecyclerView; //Recycleview object
 
+    //Variables to check when have to update UI
+    private int mSongPosition = -1;
+    boolean mIsPlay = false;
+
     private Handler mHandler = new Handler() {   //Handle object as a Thread
-        private int songPosition = -1;
 
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            if (songPosition != mMainActivity.getmMediaService().getmMediaPosition()) {
+            if (mSongPosition != mMainActivity.getmMediaService().getmMediaPosition()
+                    || mIsPlay != mMainActivity.getmMediaService().getmMediaPlayer().isPlaying()) {
                 upDateSmallPlayingRelativeLayout();
                 mFavoriteSongAdapter.notifyDataSetChanged();
             }
-            songPosition = mMainActivity.getmMediaService().getmMediaPosition();
+            mSongPosition = mMainActivity.getmMediaService().getmMediaPosition();
+            mIsPlay = mMainActivity.getmMediaService().getmMediaPlayer().isPlaying();
 
             Message message = new Message();
-            sendMessageDelayed(message, 1000);
+            sendMessageDelayed(message, 500);
         }
     };
 
@@ -68,6 +73,7 @@ public class FavoriteSongFragment extends Fragment {
             FavoriteSongDataBase.COLUMN_ARTIST_ID,
             FavoriteSongDataBase.COLUMN_ARTIST,
             FavoriteSongDataBase.COLUMN_ALBUM_ID,
+            FavoriteSongDataBase.COLUMN_ID,
     };
 
     /**
@@ -106,8 +112,29 @@ public class FavoriteSongFragment extends Fragment {
     public void onStart() {
         super.onStart();
         if (mMainActivity.getmMediaService() != null) {
-            upDateSmallPlayingRelativeLayout();
+            if(mMainActivity.getmMediaService().getmMediaPosition() < mListSongAdapter.size() - 1
+                    && mMainActivity.getmMediaService().getmMediaPosition() != -1){
+                for(Song song: mListSongAdapter){
+                    if(song.getmID() == mListSongAdapter
+                            .get(mMainActivity.getmMediaService().getmMediaPosition()).getmID()){
+                        upDateSmallPlayingRelativeLayout();
+                    }
+                }
+            }
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //TODO: Pause handler
+        mHandler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
     }
 
     /**
@@ -218,8 +245,10 @@ public class FavoriteSongFragment extends Fragment {
         final int artistId = cursor.getInt(6);
         final String artistName = cursor.getString(7);
         final String albumID = cursor.getString(8);
+        final int _id = cursor.getInt(9);
 
-        return new Song(title, trackNumber, year, duration, uri, albumName, artistId, artistName, albumID);
+        return new Song(title, trackNumber, year, duration, uri, albumName,
+                artistId, artistName, albumID, _id);
     }
 
 }

@@ -5,5 +5,6 @@
     <item android:id="@+id/seach_action_imagebutton"
         android:title="@string/seach_item_title"
         android:icon="@drawable/ic_search_white"
-        app:showAsAction="always"/>
+        app:showAsAction="always"
+        app:actionViewClass="android.widget.SearchView"/>
 </menu>

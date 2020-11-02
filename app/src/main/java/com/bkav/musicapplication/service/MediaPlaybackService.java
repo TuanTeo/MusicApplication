@@ -4,7 +4,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -18,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.bkav.musicapplication.Enum.MediaStatus;
+import com.bkav.musicapplication.Playable;
 import com.bkav.musicapplication.R;
 import com.bkav.musicapplication.broadcast.NotificationActionService;
 import com.bkav.musicapplication.song.Song;
@@ -36,7 +40,7 @@ import static androidx.core.app.NotificationCompat.PRIORITY_MIN;
  * Service de quan ly cac logic choi nhac, cac bai hat dang choi,
  * object MediaPlayer de choi nhac, thong bao dieu khien nhac
  */
-public class MediaPlaybackService extends Service {
+public class MediaPlaybackService extends Service implements Playable {
 
     private static final String NOTIFI_CHANNEL_ID = "notification_channel";
     private static final int MEDIA_NOTIFICATION_ID = 0;
@@ -44,9 +48,32 @@ public class MediaPlaybackService extends Service {
     private static final String ACTION_PLAY = "action_play";
     private static final String ACTION_NEXT = "action_next";
 
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getExtras().getString(NotificationActionService.NOTIFICATION_ACTION_NAME);
+            switch (action){
+                case ACTION_PREVIOUS:
+                    onMediaPrevious();
+                    break;
+                case ACTION_NEXT:
+                    onMediaNext();
+                    break;
+                case ACTION_PLAY:
+                    if(mMediaPlayer.isPlaying()){
+                        onMediaPause();
+                    } else {
+                        onMediaPlay();
+                    }
+                    break;
+            }
+        }
+    };
+
     private NotificationManager mNotificationManager;
 
     private int mMediaPosition = -1;
+
     private MediaStatus mMediaStatus = MediaStatus.NONE;
     private MediaPlayer mMediaPlayer;
     private ArrayList<Song> mListAllSong = SongProvider.getInstanceNotCreate().getmListSong();
@@ -55,6 +82,7 @@ public class MediaPlaybackService extends Service {
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
+        registerReceiver(mBroadcastReceiver, new IntentFilter(NotificationActionService.BROADCAST_ACTION));
     }
 
     @Nullable
@@ -81,7 +109,28 @@ public class MediaPlaybackService extends Service {
         if(mMediaPlayer != null){
             mMediaPlayer.release();
         }
+        mNotificationManager.cancelAll();
         stopSelf();
+    }
+
+    @Override
+    public void onMediaPrevious() {
+        prevMedia();
+    }
+
+    @Override
+    public void onMediaPlay() {
+        resumeMedia();
+    }
+
+    @Override
+    public void onMediaPause() {
+        pauseMedia();
+    }
+
+    @Override
+    public void onMediaNext() {
+        nextMedia();
     }
 
     //Tra ve 1 doi tuong MediaPlaybackService
@@ -151,20 +200,19 @@ public class MediaPlaybackService extends Service {
 
     public void playMedia(int position) {
         mMediaPosition = position;
-        sendNotification();
         try {
             stopMedia();
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setDataSource(mListAllSong.get(position).getmPath());
             mMediaPlayer.prepare();
             mMediaPlayer.start();
+            sendNotification();
             mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     autoNextMedia();
                 }
             });
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -174,12 +222,14 @@ public class MediaPlaybackService extends Service {
         if (mMediaPlayer.isPlaying()) {
             mMediaPlayer.pause();
         }
+        sendNotification();
     }
 
     public void resumeMedia() {
         if (!mMediaPlayer.isPlaying()) {
             mMediaPlayer.start();
         }
+        sendNotification();
     }
 
     public void stopMedia() {
@@ -263,23 +313,23 @@ public class MediaPlaybackService extends Service {
         //Previous button
         Intent intentPrev = new Intent(getApplicationContext(), NotificationActionService.class)
                 .setAction(ACTION_PREVIOUS);
-        PendingIntent pendingIntentPrev = PendingIntent.getActivity(getApplicationContext(),
-                0, intentPrev, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntentPrev = PendingIntent.getBroadcast(getApplicationContext(),
+                MEDIA_NOTIFICATION_ID, intentPrev, PendingIntent.FLAG_UPDATE_CURRENT);
         int prevImage = R.drawable.ic_rew_dark;
 
         //Next button
         Intent intentNext = new Intent(getApplicationContext(), NotificationActionService.class)
                 .setAction(ACTION_NEXT);
-        PendingIntent pendingIntentNext = PendingIntent.getActivity(getApplicationContext(),
-                0, intentPrev, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntentNext = PendingIntent.getBroadcast(getApplicationContext(),
+                MEDIA_NOTIFICATION_ID, intentNext, PendingIntent.FLAG_UPDATE_CURRENT);
         int nextImage = R.drawable.ic_fwd_dark;
 
         //Play button
         int playImage;
         Intent intentPlay = new Intent(getApplicationContext(), NotificationActionService.class)
                 .setAction(ACTION_PLAY);
-        PendingIntent pendingIntentPlay = PendingIntent.getActivity(getApplicationContext(),
-                0, intentPrev, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntentPlay = PendingIntent.getBroadcast(getApplicationContext(),
+                MEDIA_NOTIFICATION_ID, intentPlay, PendingIntent.FLAG_UPDATE_CURRENT);
         if(mMediaPlayer != null && mMediaPlayer.isPlaying()){
             playImage = R.mipmap.ic_media_pause_light;
         } else {
