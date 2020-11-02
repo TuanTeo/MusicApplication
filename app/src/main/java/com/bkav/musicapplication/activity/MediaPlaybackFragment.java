@@ -294,14 +294,17 @@ public class MediaPlaybackFragment extends Fragment
         mPreviousImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int position = -1;
                 if (mMediaPlaybackService.getmMediaPlayer().getCurrentPosition() >= 3000) {
                     mMediaPlaybackService.repeatMedia();
                 } else if (mMediaPlaybackService.getmMediaPosition() == 0) {
+                    position = mMediaPlaybackService.getListSongService().size() - 1;
                     mMediaPlaybackService
-                            .playMedia(mMediaPlaybackService.getListSongService().size() - 1);
+                            .playMedia(mListAllSong.get(position));
                 } else {
+                    position = mMediaPlaybackService.getmMediaPosition() - 1;
                     mMediaPlaybackService
-                            .playMedia((mMediaPlaybackService.getmMediaPosition() - 1));
+                            .playMedia(mListAllSong.get(position));
                 }
                 mPlayImageButton.setImageResource(R.mipmap.ic_media_pause_light);
                 upDateInfoView();

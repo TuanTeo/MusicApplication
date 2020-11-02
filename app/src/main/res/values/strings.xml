@@ -17,4 +17,7 @@
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="search_hint">Enter song\'s title</string>
+    <string name="favorite_navifation_title">Favorite</string>
+    <string name="listen_now_navigation_title">Listen Now</string>
+    <string name="music_library_navigation_title">Music Library</string>
 </resources>

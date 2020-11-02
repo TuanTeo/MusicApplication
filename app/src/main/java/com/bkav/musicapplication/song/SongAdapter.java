@@ -51,15 +51,16 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
+        //Bind view when back from defferent activity
         if (mainActivity.getmMediaService() != null) {
-            mLastItemPositionInt = mainActivity.getmMediaService().getmMediaPosition();
+            mLastItemPositionInt = mainActivity.getmMediaService().getmCurrentMediaID();
             //Set Name song
             holder.mSongNameItemTextView.setText(mListSongAdapter.get(position).getmTitle());
             holder.mTotalTimeSongItemTextView.setText(mListSongAdapter.get(position).getmDurationString());
 
             //Set font
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (position == mLastItemPositionInt) {
+                if (mListSongAdapter.get(position).getmID() == mLastItemPositionInt) {
                     holder.mSongNameItemTextView.setTextAppearance(R.style.SongTheme_NameSongClickOverLay);
                 } else {
                     holder.mSongNameItemTextView.setTextAppearance(R.style.SongTheme_NameSongOverLay);
@@ -67,7 +68,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             }
 
             //Set Serial
-            if (position == mLastItemPositionInt) {
+            if (mListSongAdapter.get(position).getmID() == mLastItemPositionInt) {
                 holder.mSerialSongNumberTextView.setVisibility(View.INVISIBLE);
                 holder.mPlayingSongImageLinearLayout.setVisibility(View.VISIBLE);
             } else {
@@ -75,7 +76,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 holder.mSerialSongNumberTextView.setVisibility(View.VISIBLE);
                 holder.mPlayingSongImageLinearLayout.setVisibility(View.GONE);
             }
-        } else {
+        }
+        //Bind view when the first time (mLastItemPosition = -1)
+        else {
             //Set Name song
             holder.mSongNameItemTextView.setText(mListSongAdapter.get(position).getmTitle());
             holder.mTotalTimeSongItemTextView.setText(mListSongAdapter.get(position).getmDurationString());
@@ -90,7 +93,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             }
 
             //Set Serial
-            if (position == mLastItemPositionInt) {
+            if (mListSongAdapter.get(position).getmID() == mLastItemPositionInt) {
                 holder.mSerialSongNumberTextView.setVisibility(View.INVISIBLE);
                 holder.mPlayingSongImageLinearLayout.setVisibility(View.VISIBLE);
             } else {
@@ -183,7 +186,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 mainActivity.getmMediaService().setListSongService(mListSongAdapter);
 
                 //play Media
-                mainActivity.getmMediaService().playMedia(mLastItemPositionInt);
+                mainActivity.getmMediaService().playMedia(mListSongAdapter.get(mLastItemPositionInt));
 
                 //Add Current Song to Database
 //                addSongToDataBase(mainActivity.getmMediaService().getmMediaPosition());
@@ -202,7 +205,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 }
             } else {    //Theo chieu ngang => khong hien thi small playing area
                 mLastItemPositionInt = getAdapterPosition();
-                mainActivity.getmMediaService().playMedia(mLastItemPositionInt);
+                mainActivity.getmMediaService().playMedia(mListSongAdapter.get(mLastItemPositionInt));
                 notifyDataSetChanged();
             }
         }

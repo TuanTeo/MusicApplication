@@ -73,6 +73,7 @@ public class MediaPlaybackService extends Service implements Playable {
     private NotificationManager mNotificationManager;
 
     private int mMediaPosition = -1;
+    private int mCurrentMediaID = -1;
 
     private MediaStatus mMediaStatus = MediaStatus.NONE;
     private MediaPlayer mMediaPlayer;
@@ -157,7 +158,7 @@ public class MediaPlaybackService extends Service implements Playable {
                 /*Don't continue play*/
                 mMediaPlayer.pause();
             } else {
-                playMedia(mMediaPosition + 1);
+                playMedia(mListAllSong.get(mMediaPosition + 1));
             }
         } else if(mMediaStatus == MediaStatus.REPEAT_ONE
                 || mMediaStatus == MediaStatus.REPEAT_ONE_AND_SHUFFLE){
@@ -182,9 +183,9 @@ public class MediaPlaybackService extends Service implements Playable {
             if (mMediaPlayer.getCurrentPosition() >= 3000) {
                 repeatMedia();
             } else if (getmMediaPosition() == 0) {
-                playMedia(getListSongService().size() - 1);
+                playMedia(mListAllSong.get(getListSongService().size() - 1));
             } else {
-                playMedia((getmMediaPosition() - 1));
+                playMedia(mListAllSong.get(getmMediaPosition() - 1));
             }
         } else if (mMediaStatus == MediaStatus.REPEAT_ALL) {
 
@@ -198,15 +199,20 @@ public class MediaPlaybackService extends Service implements Playable {
         }
     }
 
-    public void playMedia(int position) {
-        mMediaPosition = position;
+    public void playMedia(Song song) {
+        setmCurrentMediaID(song.getmID());
+        setmMediaPosition(song);
         try {
             stopMedia();
             mMediaPlayer = new MediaPlayer();
-            mMediaPlayer.setDataSource(mListAllSong.get(position).getmPath());
+            mMediaPlayer.setDataSource(song.getmPath());
             mMediaPlayer.prepare();
             mMediaPlayer.start();
+
+            //Send notification
             sendNotification();
+
+            //Set event when media completion
             mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
@@ -240,7 +246,7 @@ public class MediaPlaybackService extends Service implements Playable {
     }
 
     public void repeatMedia() {
-        playMedia(getmMediaPosition());
+        playMedia(mListAllSong.get(getmMediaPosition()));
     }
 
     //Play with shuffle Status
@@ -249,14 +255,14 @@ public class MediaPlaybackService extends Service implements Playable {
         if(position == mMediaPosition){
             position = randomPosition();
         }
-        playMedia(position);
+        playMedia(mListAllSong.get(position));
     }
 
     private void nextWithButton() {
         if (getmMediaPosition() == (mListAllSong.size()-1)) {
-            playMedia(0);
+            playMedia(mListAllSong.get(0));
         } else {
-            playMedia(getmMediaPosition() + 1);
+            playMedia(mListAllSong.get(getmMediaPosition() + 1));
         }
     }
 
@@ -277,8 +283,24 @@ public class MediaPlaybackService extends Service implements Playable {
         this.mMediaStatus = mMediaStatus;
     }
 
+    public void setmMediaPosition(Song song) {
+        for(int i = 0; i< mListAllSong.size(); i++){
+            if(mListAllSong.get(i) == song){
+                mMediaPosition = i;
+            }
+        }
+    }
+
     public int getmMediaPosition() {
         return mMediaPosition;
+    }
+
+    public int getmCurrentMediaID() {
+        return mCurrentMediaID;
+    }
+
+    public void setmCurrentMediaID(int mCurrentMediaID) {
+        this.mCurrentMediaID = mCurrentMediaID;
     }
 
     /**

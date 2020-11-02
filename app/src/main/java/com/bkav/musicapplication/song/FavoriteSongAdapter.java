@@ -48,14 +48,14 @@ public class FavoriteSongAdapter extends RecyclerView.Adapter<FavoriteSongAdapte
     @Override
     public void onBindViewHolder(@NonNull FavoriteSongViewHolder holder, int position) {
         if(mainActivity.getmMediaService() != null){
-            mLastItemPositionInt = mainActivity.getmMediaService().getmMediaPosition();
+            mLastItemPositionInt = mainActivity.getmMediaService().getmCurrentMediaID();
             //Set Name song
             holder.mSongNameItemTextView.setText(mListFavoriteSongAdapter.get(position).getmTitle());
             holder.mTotalTimeSongItemTextView.setText(mListFavoriteSongAdapter.get(position).getmDurationString());
 
             //Set font
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (position == mLastItemPositionInt) {
+                if (mListFavoriteSongAdapter.get(position).getmID() == mLastItemPositionInt) {
                     holder.mSongNameItemTextView.setTextAppearance(R.style.SongTheme_NameSongClickOverLay);
                 } else {
                     holder.mSongNameItemTextView.setTextAppearance(R.style.SongTheme_NameSongOverLay);
@@ -63,7 +63,7 @@ public class FavoriteSongAdapter extends RecyclerView.Adapter<FavoriteSongAdapte
             }
 
             //Set Serial
-            if (position == mLastItemPositionInt) {
+            if (mListFavoriteSongAdapter.get(position).getmID() == mLastItemPositionInt) {
                 holder.mSerialSongNumberTextView.setVisibility(View.INVISIBLE);
                 holder.mPlayingSongImageLinearLayout.setVisibility(View.VISIBLE);
             } else {
@@ -183,7 +183,7 @@ public class FavoriteSongAdapter extends RecyclerView.Adapter<FavoriteSongAdapte
                 mainActivity.getmMediaService().setListSongService(mListFavoriteSongAdapter);
 
                 //play Media
-                mainActivity.getmMediaService().playMedia(mLastItemPositionInt);
+                mainActivity.getmMediaService().playMedia(mListFavoriteSongAdapter.get(mLastItemPositionInt));
 
                 //Add Current Song to Database
 //                addSongToDataBase(mainActivity.getmMediaService().getmMediaPosition());
@@ -199,7 +199,7 @@ public class FavoriteSongAdapter extends RecyclerView.Adapter<FavoriteSongAdapte
                 mainActivity.getmFavoriteSongFragment().upDateSmallPlayingRelativeLayout();
             } else {    //Theo chieu ngang => khong hien thi small playing area
                 mLastItemPositionInt = getAdapterPosition();
-                mainActivity.getmMediaService().playMedia(mLastItemPositionInt);
+                mainActivity.getmMediaService().playMedia(mListFavoriteSongAdapter.get(mLastItemPositionInt));
                 notifyDataSetChanged();
             }
         }
